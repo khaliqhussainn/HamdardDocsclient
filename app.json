@@ -3,16 +3,12 @@
     "name": "Docs",
     "slug": "Docs",
     "version": "1.0.0",
+    "scheme": "docs",
     "platforms": [
       "ios",
       "android"
     ],
     "newArchEnabled": true,
-    "splash": {
-      "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    },
     "plugins": [
       [
         "expo-document-picker",
@@ -26,6 +22,10 @@
         "projectId": "0c90482f-5d05-4e80-ab71-6be67981afc1"
       }
     },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.khaliqhussainn.Docs"
+        },
     "android": {
       "package": "com.khaliqhussainn.Docs",
       "versionCode": 3
