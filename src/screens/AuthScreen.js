@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, ScrollView, Image } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Image, Dimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth';
 import { LinearGradient } from 'expo-linear-gradient';
-import OnboardingScreen from '../components/OnboardingScreen'; // Import the OnboardingScreen component
+import OnboardingScreen from '../components/OnboardingScreen';
+
+const { width, height } = Dimensions.get('window');
 
 const AuthScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLogin, setIsLogin] = useState(true);
   const [error, setError] = useState('');
-  const [showOnboarding, setShowOnboarding] = useState(true); // State to control onboarding screen
+  const [showOnboarding, setShowOnboarding] = useState(true);
   const navigation = useNavigation();
   const auth = getAuth();
 
@@ -46,141 +48,204 @@ const AuthScreen = () => {
   }
 
   return (
-    <LinearGradient
-      colors={['#6b2488', '#151537', '#1a2c6b']}
-      locations={[0, 0.3, 1]}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-      style={styles.gradient}
-    >
-      <ScrollView contentContainerStyle={styles.container}>
-        <View style={styles.imageContainer}>
-          <Image
-            source={require('../../assets/logo.jpg')} // Replace with the path to your logo
-            style={styles.logo}
-          />
-        </View>
-        <View style={styles.authContainer}>
-          <Text style={styles.title}>{isLogin ? 'Sign In' : 'Sign Up'}</Text>
-
-          <TextInput
-            style={styles.input}
-            value={email}
-            onChangeText={setEmail}
-            placeholder="Email"
-            autoCapitalize="none"
-            placeholderTextColor="#888"
-          />
-          <TextInput
-            style={styles.input}
-            placeholderTextColor="#888"
-            value={password}
-            onChangeText={setPassword}
-            placeholder="Password"
-            secureTextEntry
-          />
-          <View style={styles.buttonContainer}>
-            <Button
-              title={isLogin ? 'Sign In' : 'Sign Up'}
-              onPress={handleAuthentication}
-              color="#ffffff" // White text for buttons
-            />
+    <View style={styles.container}>
+      <LinearGradient
+        colors={['#FFFFFF', '#F5F9FC', '#EDF7FC']}
+        style={styles.gradient}
+      >
+        <ScrollView contentContainerStyle={styles.scrollContainer}>
+          <View style={styles.imageContainer}>
+            <LinearGradient
+              colors={['rgba(98, 177, 221, 0.1)', 'rgba(98, 177, 221, 0.05)']}
+              style={styles.logoBackground}
+            >
+              <Image
+                source={require('../../assets/logo.jpg')}
+                style={styles.logo}
+              />
+            </LinearGradient>
           </View>
 
-          <View style={styles.bottomContainer}>
-            <Text style={styles.toggleText} onPress={() => setIsLogin(!isLogin)}>
-              {isLogin ? 'Need an account? Sign Up' : 'Already have an account? Sign In'}
-            </Text>
+          <View style={styles.authContainer}>
+            <LinearGradient
+              colors={['#FFFFFF', '#FAFCFF']}
+              style={styles.formContainer}
+            >
+              <Text style={styles.title}>{isLogin ? 'Welcome Back' : 'Create Account'}</Text>
+              <Text style={styles.subtitle}>
+                {isLogin ? 'Sign in to continue' : 'Sign up to get started'}
+              </Text>
+
+              <View style={styles.inputContainer}>
+                <TextInput
+                  style={styles.input}
+                  value={email}
+                  onChangeText={setEmail}
+                  placeholder="Email"
+                  autoCapitalize="none"
+                  placeholderTextColor="#888"
+                />
+                <TextInput
+                  style={styles.input}
+                  value={password}
+                  onChangeText={setPassword}
+                  placeholder="Password"
+                  secureTextEntry
+                  placeholderTextColor="#888"
+                />
+              </View>
+
+              <TouchableOpacity
+                style={styles.buttonContainer}
+                onPress={handleAuthentication}
+              >
+                <LinearGradient
+                  colors={['#62B1DD', '#4A90E2']}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={styles.buttonGradient}
+                >
+                  <Text style={styles.buttonText}>
+                    {isLogin ? 'Sign In' : 'Sign Up'}
+                  </Text>
+                </LinearGradient>
+              </TouchableOpacity>
+
+              {error ? <Text style={styles.errorText}>{error}</Text> : null}
+
+              <TouchableOpacity 
+                style={styles.toggleContainer}
+                onPress={() => setIsLogin(!isLogin)}
+              >
+                <Text style={styles.toggleText}>
+                  {isLogin ? 'Need an account? ' : 'Already have an account? '}
+                  <Text style={styles.toggleTextHighlight}>
+                    {isLogin ? 'Sign Up' : 'Sign In'}
+                  </Text>
+                </Text>
+              </TouchableOpacity>
+            </LinearGradient>
           </View>
-        </View>
-        {error ? <Text style={styles.errorText}>{error}</Text> : null}
-      </ScrollView>
-    </LinearGradient>
+        </ScrollView>
+      </LinearGradient>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+  },
   gradient: {
     flex: 1,
   },
-  container: {
+  scrollContainer: {
     flexGrow: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    // padding: 16,
-    width: '100%', // Ensure the container takes full width
+    justifyContent: 'space-between',
   },
   imageContainer: {
-    width: '100%',
+    alignItems: 'center',
+    paddingTop: height * 0.1,
+    paddingBottom: height * 0.05,
+  },
+  logoBackground: {
+    width: width * 0.4,
+    height: width * 0.4,
+    borderRadius: width * 0.2,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 24,
-    height: '30%',
-  },
-  authContainer: {
-    width: '100%', // Ensure authContainer takes full width
-    // backgroundColor: 'rgb(21, 21, 55, 0.1)', // Semi-transparent white background
-    padding: 24,
-    borderRadius: 12,
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    height: '70%',
-    borderTopColor: 'rgb(21, 21, 55)',
-    // borderTopWidth: ,
-    borderTopLeftRadius: 35,
-    borderTopRightRadius: 35,
+    padding: 20,
   },
   logo: {
-    width: 100,
-    height: 100,
-    borderRadius: 50, // Circular logo
+    width: width * 0.25,
+    height: width * 0.25,
+    borderRadius: width * 0.125,
+  },
+  authContainer: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+    shadowColor: '#62B1DD',
+    shadowOffset: { width: 0, height: -3 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 5,
+  },
+  formContainer: {
+    padding: 32,
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
   },
   title: {
     fontSize: 32,
-    marginBottom: 24,
+    fontWeight: '800',
+    color: '#1A1A1A',
     textAlign: 'center',
-    fontWeight: 'bold',
-    color: '#ffffff', // White text for better contrast
+    marginBottom: 8,
+    letterSpacing: -0.5,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: '#666666',
+    textAlign: 'center',
+    marginBottom: 32,
+  },
+  inputContainer: {
+    marginBottom: 24,
   },
   input: {
-    height: 50,
+    height: 56,
+    backgroundColor: '#F5F9FC',
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    fontSize: 16,
+    color: '#1A1A1A',
     marginBottom: 16,
-    color: '#ffffff', // White text for input
-    padding: 12,
-    borderRadius: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    width: '100%',
     borderWidth: 1,
-    borderColor: '#345686', // White border for input
+    borderColor: '#E5E9F0',
   },
   buttonContainer: {
-    marginVertical: 16,
-    width: '100%',
-    backgroundColor: '#C900FE', // Primary color for button
-    padding: 6,
+    height: 56,
     borderRadius: 28,
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    overflow: 'hidden',
+    marginBottom: 24,
+    shadowColor: '#62B1DD',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  buttonGradient: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: '#FFFFFF',
+    fontSize: 18,
+    fontWeight: '600',
+    letterSpacing: 0.5,
+  },
+  toggleContainer: {
+    alignItems: 'center',
+    paddingVertical: 16,
   },
   toggleText: {
-    color: '#ffffff', // White text for toggle link
-    textAlign: 'center',
     fontSize: 16,
+    color: '#666666',
   },
-  bottomContainer: {
-    marginTop: 20,
+  toggleTextHighlight: {
+    color: '#62B1DD',
+    fontWeight: '600',
   },
   errorText: {
-    color: '#ff5252', // Red for error messages
+    color: '#FF3B30',
     textAlign: 'center',
-    marginTop: 10,
+    marginTop: -12,
+    marginBottom: 12,
+    fontSize: 14,
   },
 });
 

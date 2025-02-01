@@ -1,35 +1,60 @@
 {
   "expo": {
-    "name": "Docs",
-    "slug": "Docs",
+    "name": "HamdardDocs",
+    "slug": "hamdarddocs",
     "version": "1.0.0",
-    "scheme": "docs",
+    "orientation": "default",
+    "icon": "./assets/splash-icon.png",
+    "scheme": "hamdarddocs",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
     "platforms": [
       "ios",
       "android"
     ],
-    "newArchEnabled": true,
-    "plugins": [
-      [
-        "expo-document-picker",
-        {
-          "permissions": ["READ_EXTERNAL_STORAGE", "WRITE_EXTERNAL_STORAGE"]
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.HamdardDocs.app",
+      "infoPlist": {
+        "NSAppTransportSecurity": {
+          "NSAllowsArbitraryLoads": true
         }
-      ]
+      }
+    },
+    "android": {
+      "package": "com.HamdardDocs.app",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/splash-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "permissions": [
+        "INTERNET",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE"
+      ],
+      "networkSecurityConfig": {
+        "cleartextTrafficPermitted": true
+      },
+      "usesCleartextTraffic": true,
+      "versionCode": 1
+    },
+    "plugins": [
+      "expo-document-picker",
+      "expo-splash-screen"
     ],
     "extra": {
       "eas": {
-        "projectId": "0c90482f-5d05-4e80-ab71-6be67981afc1"
+        "projectId": "2ac4e880-5752-4b19-9185-4a7188fc149a"
       }
     },
-    "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "com.khaliqhussainn.Docs"
-        },
-    "android": {
-      "package": "com.khaliqhussainn.Docs",
-      "versionCode": 3
-    }
-
+    "owner": "khaliqhussainn"
   }
 }

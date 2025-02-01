@@ -86,14 +86,9 @@ const HomeScreen = () => {
       ]}
       onPress={() => navigation.navigate(item.link)}
     >
-      <LinearGradient
-        colors={["#e81cff", "#40c9ff"]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={styles.courseIconContainer}
-      >
+      <View style={styles.courseIconContainer}>
         <Ionicons name={item.icon} size={40} color="#fff" />
-      </LinearGradient>
+      </View>
       <Text style={styles.courseName}>{item.name}</Text>
     </Pressable>
   );
@@ -101,12 +96,13 @@ const HomeScreen = () => {
   return (
     <View style={styles.container}>
       <LinearGradient
-        colors={['#6b2488', '#151537', '#1a2c6b']}
-        locations={[0, 0.3, 1]}
+        colors={['#ffffff', '#B2E3FF', '#62B1DD']}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
+        locations={[0, 0.6, 1]}
         style={styles.backgroundGradient}
       />
+      <View style={styles.texturePattern} />
 
       <SafeAreaView style={styles.content}>
         <Navbar />
@@ -147,6 +143,28 @@ const styles = StyleSheet.create({
     top: 0,
     bottom: 0,
   },
+  texturePattern: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    opacity: 0.12,
+    backgroundImage: Platform.select({
+      web: `
+        linear-gradient(135deg, transparent 0%, transparent 45%, 
+        ${Platform.OS === 'web' ? '#62B1DD' : 'rgba(98, 177, 221, 0.4)'} 45%, 
+        ${Platform.OS === 'web' ? '#62B1DD' : 'rgba(98, 177, 221, 0.4)'} 55%, 
+        transparent 55%, transparent 100%),
+        linear-gradient(-135deg, transparent 0%, transparent 45%, 
+        ${Platform.OS === 'web' ? '#62B1DD' : 'rgba(98, 177, 221, 0.4)'} 45%,
+        ${Platform.OS === 'web' ? '#62B1DD' : 'rgba(98, 177, 221, 0.4)'} 55%,
+        transparent 55%, transparent 100%)
+      `,
+      default: undefined,
+    }),
+    backgroundSize: '60px 60px', // Increased pattern size
+  },
   content: {
     flex: 1,
     zIndex: 1,
@@ -154,37 +172,39 @@ const styles = StyleSheet.create({
   mainContent: {
     flex: 1,
     zIndex: 1,
-    paddingBottom: 60, // Add padding to accommodate the bottom bar
+    paddingBottom: 60,
   },
   coursesList: {
     padding: 16,
     gap: 16,
     paddingBottom: 20,
   },
-  courseContainer: {
-    overflow: 'hidden',
-    borderRadius: 16,
-    padding: 24,
-    marginBottom: 16,
-    width: width - 32,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: 'rgba(107, 36, 136, 0.15)', // Purple tint matching background
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
-    backdropFilter: Platform.OS === 'web' ? 'blur(10px)' : undefined,
-    ...Platform.select({
-      ios: {
-        shadowColor: "#e81cff",
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.2,
-        shadowRadius: 8,
-      },
-      android: {
-        elevation: 8,
-      },
-    }),
-  },
+ courseContainer: {
+  overflow: 'hidden',
+  borderRadius: 16,
+  padding: 24,
+  marginBottom: 16,
+  width: width - 32,
+  alignItems: "center",
+  justifyContent: "center",
+  backgroundColor: 'rgba(255, 255, 255, 0.85)', // Slightly more opaque for better readability
+  borderWidth: 1,
+  borderColor: 'rgba(98, 177, 221, 0.4)', // Lighter border color
+  ...Platform.select({
+    ios: {
+      shadowColor: "#62B1DD",
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.15, // Reduced opacity for a softer shadow
+      shadowRadius: 8,
+    },
+    android: {
+      elevation: 3,
+    },
+    web: {
+      boxShadow: '0 4px 8px rgba(98, 177, 221, 0.15)', // Softer shadow for web
+    },
+  }),
+},
   courseIconContainer: {
     width: 80,
     height: 80,
@@ -193,20 +213,28 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     marginBottom: 16,
     borderWidth: 2,
-    borderColor: "rgba(255,255,255,0.15)",
-    shadowColor: "#e81cff",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
+    backgroundColor: "#0070F0",
+    borderColor: "rgba(98, 177, 221, 0.2)",
+    ...Platform.select({
+      ios: {
+        shadowColor: "#62B1DD",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 2,
+      },
+      web: {
+        boxShadow: '0 2px 4px rgba(98, 177, 221, 0.25)',
+      },
+    }),
   },
   courseName: {
     fontSize: 20,
     fontWeight: "600",
-    color: "#fff",
+    color: "#2F2F2F",
     textAlign: "center",
     letterSpacing: 0.5,
-    textShadowColor: 'rgba(232, 28, 255, 0.3)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
   },
 });

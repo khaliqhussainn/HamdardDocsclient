@@ -22,7 +22,6 @@ const LeftSidebar = () => {
   const [activeLink, setActiveLink] = useState("Profile");
   const [showQuickStats, setShowQuickStats] = useState(false);
 
-  // Animation value for quick stats
   const quickStatsAnim = new Animated.Value(0);
 
   useEffect(() => {
@@ -31,27 +30,25 @@ const LeftSidebar = () => {
       setUser({
         name: currentUser.displayName || "User",
         email: currentUser.email,
-        imageUrl:
-          currentUser.photoURL || "../../assets/icons/profile-placeholder.svg",
-        role: "Student", // You can fetch this from your user data
-        joinDate: "Jan 2024", // You can fetch this from your user data
+        imageUrl: currentUser.photoURL || "../../assets/icons/profile-placeholder.svg",
+        role: "Student",
+        joinDate: "Jan 2024",
       });
     }
   }, [auth.currentUser]);
 
   const toggleQuickStats = () => {
     setShowQuickStats(!showQuickStats);
-    Animated.timing(quickStatsAnim, {
+    Animated.spring(quickStatsAnim, {
       toValue: showQuickStats ? 0 : 1,
-      duration: 300,
+      tension: 20,
+      friction: 7,
       useNativeDriver: false,
     }).start();
   };
 
   const handleSocialMediaPress = (url) => {
-    Linking.openURL(url).catch((err) =>
-      console.error("Failed to open URL:", err)
-    );
+    Linking.openURL(url).catch((err) => console.error("Failed to open URL:", err));
   };
 
   const quickStats = [
@@ -62,10 +59,10 @@ const LeftSidebar = () => {
 
   return (
     <LinearGradient
-      colors={["#6b2488", "#151537", "#1a2c6b"]}
-      locations={[0, 0.3, 1]}
+      colors={["#ffffff", "#62B1DD"]}
+      locations={[0, 0.95]}
       start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
+      end={{ x: 0, y: 1 }}
       style={styles.container}
     >
       <ScrollView
@@ -76,20 +73,33 @@ const LeftSidebar = () => {
         {/* Logo and App Name */}
         <View style={styles.logoContainer}>
           <View style={styles.logoWrapper}>
-            <Image
-              source={require("../../assets/logo.jpg")}
-              style={styles.logo}
-              alt="App Logo"
-            />
+            <LinearGradient
+              colors={["#0070F0", "#62B1DD"]}
+              style={styles.logoGradient}
+            >
+              <Image
+                source={require("../../assets/logo.jpg")}
+                style={styles.logo}
+                alt="App Logo"
+              />
+            </LinearGradient>
           </View>
           <Text style={styles.appName}>Prep Notes</Text>
         </View>
 
         {/* User Profile Section */}
         {user && (
-          <Pressable onPress={toggleQuickStats}>
+          <Pressable 
+            onPress={toggleQuickStats}
+            style={({ pressed }) => [
+              styles.userInfoContainer,
+              pressed && styles.pressed
+            ]}
+          >
             <LinearGradient
-              colors={["rgba(107, 36, 136, 0.3)", "rgba(21, 21, 55, 0.3)"]}
+              colors={["#0070F0", "#62B1DD"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
               style={styles.userInfo}
             >
               <View style={styles.profileImageContainer}>
@@ -103,9 +113,11 @@ const LeftSidebar = () => {
               <View style={styles.userDetails}>
                 <Text style={styles.userName}>{user.name}</Text>
                 <Text style={styles.userEmail}>{user.email}</Text>
-                <Text style={styles.userRole}>
-                  {user.role} • Since {user.joinDate}
-                </Text>
+                <View style={styles.roleContainer}>
+                  <Text style={styles.userRole}>
+                    {user.role} • Since {user.joinDate}
+                  </Text>
+                </View>
               </View>
             </LinearGradient>
           </Pressable>
@@ -118,18 +130,30 @@ const LeftSidebar = () => {
             {
               height: quickStatsAnim.interpolate({
                 inputRange: [0, 1],
-                outputRange: [0, 120],
+                outputRange: [0, 130],
               }),
               opacity: quickStatsAnim,
+              transform: [{
+                scale: quickStatsAnim.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [0.9, 1],
+                }),
+              }],
             },
           ]}
         >
           {quickStats.map((stat, index) => (
-            <View key={index} style={styles.statItem}>
-              <Ionicons name={stat.icon} size={24} color="#F4EBD0" />
-              <Text style={styles.statLabel}>{stat.label}</Text>
+            <LinearGradient
+              key={index}
+              colors={["#0070F0", "#62B1DD"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.statItem}
+            >
+              <Ionicons name={stat.icon} size={24} color="#ffffff" />
               <Text style={styles.statValue}>{stat.value}</Text>
-            </View>
+              <Text style={styles.statLabel}>{stat.label}</Text>
+            </LinearGradient>
           ))}
         </Animated.View>
 
@@ -145,28 +169,41 @@ const LeftSidebar = () => {
               style={({ pressed }) => [
                 styles.navLink,
                 activeLink === link.name && styles.navLinkActive,
-                pressed && styles.navLinkPressed,
+                pressed && styles.pressed,
               ]}
               onPress={() => {
                 setActiveLink(link.name);
                 navigation.navigate(link.name);
               }}
             >
-              <Ionicons name={link.icon} size={24} color="#F4EBD0" />
-              <Text style={styles.navLinkText}>{link.name}</Text>
-              {link.badge && (
-                <View style={styles.badge}>
-                  <Text style={styles.badgeText}>{link.badge}</Text>
-                </View>
-              )}
+              <LinearGradient
+                colors={activeLink === link.name ? ["#0070F0", "#62B1DD"] : ["#ffffff", "#f8f9fa"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.navLinkGradient}
+              >
+                <Ionicons 
+                  name={link.icon} 
+                  size={24} 
+                  color={activeLink === link.name ? "#ffffff" : "#0070F0"} 
+                />
+                <Text style={[
+                  styles.navLinkText,
+                  activeLink === link.name && styles.navLinkTextActive
+                ]}>
+                  {link.name}
+                </Text>
+              </LinearGradient>
             </Pressable>
           ))}
         </View>
 
-        {/* Developer Mention Section */}
+        {/* Footer Section */}
         <View style={styles.footer}>
           <LinearGradient
-            colors={["rgba(107, 36, 136, 0.2)", "rgba(21, 21, 55, 0.2)"]}
+            colors={["#0070F0", "#62B1DD"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
             style={styles.footerContent}
           >
             <Text style={styles.footerText}>Developed by Khalique Hussain</Text>
@@ -174,43 +211,22 @@ const LeftSidebar = () => {
               for any queries contact me at-
             </Text>
 
-            {/* Social Media Icons */}
             <View style={styles.socialMediaIcons}>
               {[
-                {
-                  name: "facebook",
-                  color: "#3b5998",
-                  url: "https://facebook.com",
-                },
-                {
-                  name: "twitter",
-                  color: "#1da1f2",
-                  url: "https://x.com/KhaliqHussainnn",
-                },
-                {
-                  name: "instagram",
-                  color: "#e1306c",
-                  url: "https://www.instagram.com/khaliqhussain_/",
-                },
-                {
-                  name: "linkedin",
-                  color: "#0077b5",
-                  url: "http://linkedin.com/in/khaliquehussain7",
-                },
+                { name: "facebook", color: "#3b5998", url: "https://facebook.com" },
+                { name: "twitter", color: "#1da1f2", url: "https://x.com/KhaliqHussainnn" },
+                { name: "instagram", color: "#e1306c", url: "https://www.instagram.com/khaliqhussain_/" },
+                { name: "linkedin", color: "#0077b5", url: "http://linkedin.com/in/khaliquehussain7" },
               ].map((social, index) => (
                 <Pressable
                   key={index}
-                  style={[
+                  style={({ pressed }) => [
                     styles.socialIcon,
-                    { backgroundColor: `${social.color}20` },
+                    pressed && styles.socialIconPressed,
                   ]}
                   onPress={() => handleSocialMediaPress(social.url)}
                 >
-                  <FontAwesome
-                    name={social.name}
-                    size={24}
-                    color={social.color}
-                  />
+                  <FontAwesome name={social.name} size={22} color="#ffffff" />
                 </Pressable>
               ))}
             </View>
@@ -229,18 +245,17 @@ const styles = StyleSheet.create({
   sidebar: {
     flex: 1,
     borderBottomRightRadius: 30,
-    shadowColor: "#000",
+    shadowColor: "#62B1DD",
     shadowOffset: { width: 4, height: 0 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 10,
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    elevation: 15,
   },
   scrollContent: {
     paddingHorizontal: 24,
     paddingTop: 48,
-    paddingBottom: 64, // Increased padding to ensure bottom content is visible
+    paddingBottom: 64,
     flexGrow: 1,
-    marginBottom: 30,
   },
   logoContainer: {
     alignItems: "center",
@@ -249,160 +264,181 @@ const styles = StyleSheet.create({
   logoWrapper: {
     padding: 4,
     borderRadius: 50,
-    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
+  },
+  logoGradient: {
+    padding: 3,
+    borderRadius: 47,
   },
   logo: {
-    width: 90,
-    height: 90,
-    borderRadius: 45,
+    width: 88,
+    height: 88,
+    borderRadius: 44,
     borderWidth: 3,
-    borderColor: "#fff",
+    borderColor: "#ffffff",
   },
   appName: {
-    fontSize: 28,
+    fontSize: 32,
     fontWeight: "800",
-    color: "#F4EBD0",
+    color: "#0070F0",
     marginTop: 16,
-    textShadowColor: "rgba(0, 0, 0, 0.3)",
-    textShadowOffset: { width: 2, height: 2 },
-    textShadowRadius: 4,
+    textShadowColor: "rgba(0, 0, 0, 0.2)",
+    textShadowOffset: { width: 1, height: 1 },
+    textShadowRadius: 3,
+  },
+  userInfoContainer: {
+    marginBottom: 16,
+    borderRadius: 20,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 5,
   },
   userInfo: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 16,
     padding: 16,
-    borderRadius: 16,
+    borderRadius: 20,
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.1)",
+    borderColor: "rgba(255, 255, 255, 0.2)",
   },
   profileImageContainer: {
     position: "relative",
     padding: 3,
-    borderRadius: 35,
-    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    borderRadius: 36,
+    backgroundColor: "rgba(255, 255, 255, 0.3)",
   },
   profileImage: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
+    width: 68,
+    height: 68,
+    borderRadius: 34,
+    borderWidth: 2,
+    borderColor: "#ffffff",
   },
   statusIndicator: {
     position: "absolute",
     bottom: 3,
     right: 3,
-    width: 14,
-    height: 14,
-    borderRadius: 7,
+    width: 16,
+    height: 16,
+    borderRadius: 8,
     backgroundColor: "#4CAF50",
     borderWidth: 2,
-    borderColor: "#151537",
+    borderColor: "#ffffff",
   },
   userDetails: {
     flex: 1,
     marginLeft: 16,
   },
   userName: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: "700",
-    color: "#F4EBD0",
+    color: "#ffffff",
     marginBottom: 4,
   },
   userEmail: {
     fontSize: 14,
-    color: "rgba(244, 235, 208, 0.7)",
-    marginBottom: 4,
+    color: "#ffffff",
+    marginBottom: 6,
+    opacity: 0.9,
+  },
+  roleContainer: {
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    borderRadius: 12,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    alignSelf: "flex-start",
   },
   userRole: {
     fontSize: 12,
-    color: "rgba(244, 235, 208, 0.5)",
+    color: "#ffffff",
+    fontWeight: "500",
   },
   quickStats: {
     flexDirection: "row",
     justifyContent: "space-between",
     marginBottom: 24,
     overflow: "hidden",
+    gap: 12,
   },
   statItem: {
     flex: 1,
     alignItems: "center",
-    padding: 12,
-    backgroundColor: "rgba(255, 255, 255, 0.1)",
-    borderRadius: 12,
-    marginHorizontal: 4,
+    padding: 16,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.2)",
   },
   statLabel: {
     fontSize: 12,
-    color: "rgba(244, 235, 208, 0.7)",
+    color: "#ffffff",
     marginTop: 4,
+    opacity: 0.9,
   },
   statValue: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: "700",
-    color: "#F4EBD0",
+    color: "#ffffff",
+    marginTop: 8,
   },
   navLinksContainer: {
-    gap: 12,
+    gap: 16,
     marginBottom: 36,
   },
   navLink: {
+    borderRadius: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  navLinkGradient: {
     flexDirection: "row",
     alignItems: "center",
     padding: 16,
-    borderRadius: 12,
+    borderRadius: 16,
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.1)",
-    position: "relative",
+    borderColor: "rgba(255, 255, 255, 0.2)",
   },
   navLinkActive: {
-    backgroundColor: "rgba(107, 36, 136, 0.3)",
-    borderColor: "#6b2488",
-  },
-  navLinkPressed: {
-    backgroundColor: "rgba(255, 255, 255, 0.15)",
-    transform: [{ scale: 0.98 }],
+    transform: [{ scale: 1.02 }],
   },
   navLinkText: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#F4EBD0",
+    color: "#0070F0",
     marginLeft: 12,
     flex: 1,
   },
-  badge: {
-    backgroundColor: "#6b2488",
-    borderRadius: 12,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    position: "absolute",
-    right: 16,
-  },
-  badgeText: {
-    color: "#F4EBD0",
-    fontSize: 12,
-    fontWeight: "600",
+  navLinkTextActive: {
+    color: "#ffffff",
   },
   footer: {
     marginTop: "auto",
     borderTopWidth: 1,
-    borderTopColor: "rgba(255, 255, 255, 0.1)",
+    borderTopColor: "rgba(98, 177, 221, 0.2)",
     paddingTop: 24,
   },
   footerContent: {
     alignItems: "center",
-    padding: 20,
-    borderRadius: 16,
+    padding: 24,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.2)",
   },
   footerText: {
     fontSize: 18,
     fontWeight: "700",
-    color: "#F4EBD0",
+    color: "#ffffff",
     marginBottom: 8,
   },
   footerSubtext: {
     fontSize: 14,
-    color: "rgba(244, 235, 208, 0.7)",
-    marginBottom: 16,
+    color: "#ffffff",
+    marginBottom: 20,
+    opacity: 0.9,
   },
   socialMediaIcons: {
     flexDirection: "row",
@@ -412,9 +448,13 @@ const styles = StyleSheet.create({
   socialIcon: {
     padding: 12,
     borderRadius: 12,
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.1)",
+    borderColor: "rgba(255, 255, 255, 0.2)",
   },
+  socialIconPressed: {
+    transform: [{ scale: 0.95 }],
+  }
 });
 
 export default LeftSidebar;

@@ -13,6 +13,7 @@ import {
   Modal,
   SafeAreaView,
   Keyboard,
+  Animated,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import {
@@ -25,6 +26,7 @@ import {
   limitToLast,
 } from "@firebase/database";
 import { getAuth } from "@firebase/auth";
+import Ionicons from "react-native-vector-icons/Ionicons";
 
 const GroupChat = () => {
   const [message, setMessage] = useState("");
@@ -33,15 +35,18 @@ const GroupChat = () => {
   const [users, setUsers] = useState(new Set());
   const [showUsersModal, setShowUsersModal] = useState(false);
   const flatListRef = useRef();
+  const fadeAnim = useRef(new Animated.Value(0)).current;
   const auth = getAuth();
   const database = getDatabase();
   const MESSAGES_LIMIT = 50;
 
-  // Gradient configuration
-  const gradientColors = ["#6b2488", "#151537", "#1a2c6b"];
-  const gradientLocations = [0, 0.3, 1];
-  const gradientStart = { x: 0, y: 0 };
-  const gradientEnd = { x: 1, y: 1 };
+  useEffect(() => {
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 500,
+      useNativeDriver: true,
+    }).start();
+  }, []);
 
   useEffect(() => {
     const messagesRef = ref(database, "messages");
@@ -79,16 +84,16 @@ const GroupChat = () => {
         userId: auth.currentUser.uid,
         userEmail: auth.currentUser.email,
         timestamp: Date.now(),
-        displayName:
-          auth.currentUser.displayName || auth.currentUser.email.split("@")[0],
+        displayName: auth.currentUser.displayName || auth.currentUser.email.split("@")[0],
         photoURL: auth.currentUser.photoURL,
       });
       setMessage("");
+      Keyboard.dismiss();
     }
   };
 
   const getInitials = (email) => {
-    return email.charAt(0).toUpperCase();
+    return email.split("@")[0].charAt(0).toUpperCase();
   };
 
   const formatTimestamp = (timestamp) => {
@@ -98,21 +103,11 @@ const GroupChat = () => {
     yesterday.setDate(yesterday.getDate() - 1);
 
     if (date.toDateString() === now.toDateString()) {
-      return date.toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-      });
+      return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
     } else if (date.toDateString() === yesterday.toDateString()) {
-      return (
-        "Yesterday " +
-        date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-      );
+      return "Yesterday " + date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
     }
-    return (
-      date.toLocaleDateString() +
-      " " +
-      date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
-    );
+    return date.toLocaleDateString() + " " + date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   };
 
   const ProfileImage = ({ user, size = 40 }) => (
@@ -123,9 +118,12 @@ const GroupChat = () => {
           style={[styles.profileImage, { width: size, height: size }]}
         />
       ) : (
-        <Text style={styles.profileInitials}>
-          {getInitials(user.userEmail)}
-        </Text>
+        <LinearGradient
+          colors={["#0070F0", "#62B1DD"]}
+          style={[styles.profileImage, { width: size, height: size }]}
+        >
+          <Text style={styles.profileInitials}>{getInitials(user.userEmail)}</Text>
+        </LinearGradient>
       )}
     </View>
   );
@@ -138,46 +136,58 @@ const GroupChat = () => {
         new Date(messages[index - 1].timestamp).toDateString();
 
     return (
-      <>
+      <Animated.View style={{ opacity: fadeAnim }}>
         {showDateHeader && (
           <View style={styles.dateHeader}>
-            <Text style={styles.dateHeaderText}>
-              {new Date(item.timestamp).toLocaleDateString()}
-            </Text>
+            <LinearGradient
+              colors={["#0070F0", "#62B1DD"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={styles.dateHeaderGradient}
+            >
+              <Text style={styles.dateHeaderText}>
+                {new Date(item.timestamp).toLocaleDateString()}
+              </Text>
+            </LinearGradient>
           </View>
         )}
-        <View
-          style={[
-            styles.messageRow,
-            isCurrentUser ? styles.currentUserRow : styles.otherUserRow,
-          ]}
-        >
-          {!isCurrentUser && <ProfileImage user={item} size={32} />}
+        <View style={[
+          styles.messageRow,
+          isCurrentUser ? styles.currentUserRow : styles.otherUserRow
+        ]}>
+          {!isCurrentUser && <ProfileImage user={item} size={36} />}
           <LinearGradient
-            colors={
-              isCurrentUser ? ["#6b2488", "#1a2c6b"] : ["#151537", "#1a2c6b"]
-            }
-            start={gradientStart}
-            end={gradientEnd}
+            colors={isCurrentUser ? ["#0070F0", "#62B1DD"] : ["#ffffff", "#f8f9fa"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
             style={[
               styles.messageContainer,
-              isCurrentUser
-                ? styles.currentUserMessage
-                : styles.otherUserMessage,
+              isCurrentUser ? styles.currentUserMessage : styles.otherUserMessage
             ]}
           >
             {!isCurrentUser && (
-              <Text style={styles.userName}>
+              <Text style={[
+                styles.userName,
+                { color: isCurrentUser ? "#ffffff" : "#0070F0" }
+              ]}>
                 {item.displayName || item.userEmail.split("@")[0]}
               </Text>
             )}
-            <Text style={styles.messageText}>{item.text}</Text>
-            <Text style={styles.timestamp}>
+            <Text style={[
+              styles.messageText,
+              { color: isCurrentUser ? "#ffffff" : "#333333" }
+            ]}>
+              {item.text}
+            </Text>
+            <Text style={[
+              styles.timestamp,
+              { color: isCurrentUser ? "#ffffff90" : "#66666690" }
+            ]}>
               {formatTimestamp(item.timestamp)}
             </Text>
           </LinearGradient>
         </View>
-      </>
+      </Animated.View>
     );
   };
 
@@ -190,29 +200,32 @@ const GroupChat = () => {
     >
       <View style={styles.modalContainer}>
         <LinearGradient
-          colors={gradientColors}
-          locations={gradientLocations}
-          start={gradientStart}
-          end={gradientEnd}
+          colors={["#ffffff", "#62B1DD"]}
           style={styles.modalContent}
         >
-          <Text style={styles.modalTitle}>Active Users ({users.size})</Text>
+          <View style={styles.modalHeader}>
+            <Text style={styles.modalTitle}>Active Users ({users.size})</Text>
+            <TouchableOpacity
+              style={styles.closeButton}
+              onPress={() => setShowUsersModal(false)}
+            >
+              <Ionicons name="close" size={24} color="#0070F0" />
+            </TouchableOpacity>
+          </View>
           <FlatList
             data={Array.from(users)}
             renderItem={({ item }) => (
-              <View style={styles.modalUserItem}>
-                <ProfileImage user={{ userEmail: item }} size={40} />
+              <LinearGradient
+                colors={["#ffffff", "#f8f9fa"]}
+                style={styles.modalUserItem}
+              >
+                <ProfileImage user={{ userEmail: item }} size={44} />
                 <Text style={styles.modalUserName}>{item.split("@")[0]}</Text>
-              </View>
+              </LinearGradient>
             )}
             keyExtractor={(item) => item}
+            ItemSeparatorComponent={() => <View style={styles.userSeparator} />}
           />
-          <TouchableOpacity
-            style={styles.closeButton}
-            onPress={() => setShowUsersModal(false)}
-          >
-            <Text style={styles.closeButtonText}>Close</Text>
-          </TouchableOpacity>
         </LinearGradient>
       </View>
     </Modal>
@@ -222,13 +235,10 @@ const GroupChat = () => {
     return (
       <SafeAreaView style={styles.safeArea}>
         <LinearGradient
-          colors={gradientColors}
-          locations={gradientLocations}
-          start={gradientStart}
-          end={gradientEnd}
+          colors={["#ffffff", "#62B1DD"]}
           style={styles.loadingContainer}
         >
-          <ActivityIndicator size="large" color="#fff" />
+          <ActivityIndicator size="large" color="#0070F0" />
         </LinearGradient>
       </SafeAreaView>
     );
@@ -242,10 +252,8 @@ const GroupChat = () => {
         keyboardVerticalOffset={Platform.OS === "ios" ? 60 : 0}
       >
         <LinearGradient
-          colors={gradientColors}
-          locations={gradientLocations}
-          start={gradientStart}
-          end={gradientEnd}
+          colors={["#ffffff", "#62B1DD"]}
+          locations={[0, 1]}
           style={styles.container}
         >
           <View style={styles.header}>
@@ -255,14 +263,16 @@ const GroupChat = () => {
             >
               <ProfileImage
                 user={{ userEmail: auth.currentUser.email }}
-                size={32}
+                size={40}
               />
               <View style={styles.userInfo}>
                 <Text style={styles.currentUserName}>
-                  {auth.currentUser.displayName ||
-                    auth.currentUser.email.split("@")[0]}
+                  {auth.currentUser.displayName || auth.currentUser.email.split("@")[0]}
                 </Text>
-                <View style={styles.onlineIndicator} />
+                <View style={styles.onlineStatus}>
+                  <View style={styles.onlineIndicator} />
+                  <Text style={styles.onlineText}>Online</Text>
+                </View>
               </View>
             </TouchableOpacity>
           </View>
@@ -275,13 +285,18 @@ const GroupChat = () => {
             onContentSizeChange={() => flatListRef.current?.scrollToEnd()}
             onLayout={() => flatListRef.current?.scrollToEnd()}
             ListEmptyComponent={
-              <Text style={styles.emptyText}>
-                No messages yet. Start the conversation!
-              </Text>
+              <View style={styles.emptyContainer}>
+                <Ionicons name="chatbubble-outline" size={48} color="#0070F0" />
+                <Text style={styles.emptyText}>
+                  No messages yet. Start the conversation!
+                </Text>
+              </View>
             }
           />
 
-          <View style={styles.inputContainer}>
+          <View
+            style={styles.inputContainer}
+          >
             <TextInput
               style={styles.input}
               value={message}
@@ -290,17 +305,17 @@ const GroupChat = () => {
               placeholderTextColor="#888"
               multiline
               maxLength={500}
-              onFocus={() => Keyboard.dismiss()}
             />
             <TouchableOpacity
-              style={[
-                styles.sendButton,
-                !message.trim() && styles.sendButtonDisabled,
-              ]}
+              style={[styles.sendButton, !message.trim() && styles.sendButtonDisabled]}
               onPress={sendMessage}
               disabled={!message.trim()}
             >
-              <Text style={styles.sendButtonText}>Send</Text>
+              <View
+                style={styles.sendButtonGradient}
+              >
+                <Ionicons name="send" size={24} color="#ffffff" />
+              </View>
             </TouchableOpacity>
           </View>
 
@@ -314,57 +329,70 @@ const GroupChat = () => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
+    backgroundColor: "#0070F0",
   },
   container: {
     flex: 1,
   },
   header: {
-    padding: 12,
+    padding: 16,
     borderBottomWidth: 1,
-    borderBottomColor: "#6b2488",
+    borderBottomColor: "#62B1DD20",
+    backgroundColor: "#62B1DD",
   },
   userButton: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "rgba(255, 255, 255, 0.1)",
-    padding: 8,
-    borderRadius: 20,
+    backgroundColor: "#f8f9fa",
+    padding: 12,
+    borderRadius: 24,
     alignSelf: "flex-start",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   userInfo: {
-    marginLeft: 8,
-    flexDirection: "row",
-    alignItems: "center",
+    marginLeft: 12,
   },
   currentUserName: {
-    color: "#fff",
-    fontSize: 14,
-    fontWeight: "bold",
-    marginRight: 8,
+    color: "#333333",
+    fontSize: 16,
+    fontWeight: "600",
+    marginBottom: 4,
+  },
+  onlineStatus: {
+    flexDirection: "row",
+    alignItems: "center",
   },
   onlineIndicator: {
     width: 8,
     height: 8,
     borderRadius: 4,
     backgroundColor: "#22c55e",
+    marginRight: 6,
+  },
+  onlineText: {
+    color: "#666666",
+    fontSize: 12,
   },
   profileImage: {
     borderRadius: 20,
-    backgroundColor: "#6b2488",
     justifyContent: "center",
     alignItems: "center",
     overflow: "hidden",
   },
   profileInitials: {
-    color: "#fff",
-    fontSize: 16,
-    fontWeight: "bold",
+    color: "#ffffff",
+    fontSize: 18,
+    fontWeight: "600",
   },
   messageRow: {
     flexDirection: "row",
     alignItems: "flex-end",
-    marginVertical: 4,
-    paddingHorizontal: 12,
+    marginVertical: 6,
+    paddingHorizontal: 16,
   },
   currentUserRow: {
     justifyContent: "flex-end",
@@ -377,6 +405,11 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     maxWidth: "75%",
     marginHorizontal: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   currentUserMessage: {
     borderBottomRightRadius: 4,
@@ -385,57 +418,63 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 4,
   },
   userName: {
-    color: "#fff",
-    fontSize: 12,
+    fontSize: 13,
     marginBottom: 4,
-    fontWeight: "bold",
+    fontWeight: "600",
   },
   messageText: {
-    color: "#fff",
     fontSize: 16,
+    lineHeight: 22,
   },
   timestamp: {
-    color: "rgba(255, 255, 255, 0.6)",
-    fontSize: 10,
-    marginTop: 4,
+    fontSize: 11,
+    marginTop: 6,
     alignSelf: "flex-end",
   },
   dateHeader: {
     alignItems: "center",
-    marginVertical: 16,
+    marginVertical: 20,
+  },
+  dateHeaderGradient: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 16,
   },
   dateHeaderText: {
-    color: "rgba(255, 255, 255, 0.6)",
-    fontSize: 12,
-    backgroundColor: "rgba(255, 255, 255, 0.1)",
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 12,
+    color: "#ffffff",
+    fontSize: 13,
+    fontWeight: "600",
   },
   inputContainer: {
     flexDirection: "row",
-    padding: 18,
-    marginBottom: Platform.OS === "ios" ? 60 : 20,
-    // backgroundColor: "#151537",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: 16,
+    paddingBottom: Platform.OS === "ios" ? 32 : 16,
+    borderTopWidth: 1,
+    borderTopColor: "#62B1DD20",
+    // backgroundColor: "#62B1DD",
   },
   input: {
     flex: 1,
-    backgroundColor: "#2F2750",
-    color: "#fff",
-    borderRadius: 20,
-    paddingHorizontal: 16,
+    backgroundColor: "#ffffff",
+    color: "#333333",
+    borderRadius: 24,
+    paddingHorizontal: 20,
     paddingVertical: 12,
-    marginRight: 8,
+    marginRight: 12,
     maxHeight: 100,
+    borderWidth: 1,
+    borderColor: "#62B1DD30",
   },
   sendButton: {
-    backgroundColor: "#6b2488",
+    backgroundColor: "#62B1DD",
     borderRadius: 20,
     paddingHorizontal: 16,
     justifyContent: "center",
   },
   sendButtonDisabled: {
-    backgroundColor: "#C900FF",
+    backgroundColor: "#62B1DD50",
   },
   sendButtonText: {
     color: "#fff",

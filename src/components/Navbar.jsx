@@ -1,20 +1,21 @@
 import React, { useState, useEffect, useRef } from "react";
-import { 
-  Pressable, 
-  StyleSheet, 
-  Text, 
-  View, 
-  Platform, 
-  Animated 
+import {
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+  Platform,
+  Animated,
 } from "react-native";
 import MaterialCommunityIcons from "react-native-vector-icons/MaterialCommunityIcons";
 import { useNavigation } from "@react-navigation/native";
 import LeftSidebar from "./LeftSideBar";
+import Ionicons from "react-native-vector-icons/Ionicons";
 
 const Navbar = () => {
   const navigation = useNavigation();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  
+
   // Animated value for pulsing effect
   const pulseAnim = useRef(new Animated.Value(1)).current;
 
@@ -25,13 +26,13 @@ const Navbar = () => {
         Animated.timing(pulseAnim, {
           toValue: 1.2,
           duration: 800,
-          useNativeDriver: true
+          useNativeDriver: true,
         }),
         Animated.timing(pulseAnim, {
           toValue: 1,
           duration: 800,
-          useNativeDriver: true
-        })
+          useNativeDriver: true,
+        }),
       ])
     );
 
@@ -56,18 +57,22 @@ const Navbar = () => {
         {/* Animated AI Brain Icon */}
         <Pressable
           style={styles.iconButton}
-          onPress={() => navigation.navigate("AIStudentHelper")}
+          onPress={() => navigation.navigate("GroupChat")}
         >
-          <Animated.View style={{
-            transform: [{ 
-              scale: pulseAnim 
-            }]
-          }}>
-            <MaterialCommunityIcons 
-              name="brain" 
-              size={28} 
-              color="#00ffff" // Cyberpunk-style cyan
-            />
+          <Animated.View
+            style={{
+              transform: [
+                {
+                  scale: pulseAnim,
+                },
+              ],
+            }}
+          >
+            <Ionicons
+              name="chatbubble-ellipses-outline"
+              size={30}
+              color="#0070F0"
+            ></Ionicons>
           </Animated.View>
         </Pressable>
       </View>
@@ -109,10 +114,10 @@ const styles = StyleSheet.create({
   menuButton: {
     padding: 8,
     borderRadius: 8,
-    backgroundColor: "rgba(255,255,255,0.1)",
+    backgroundColor: "#0070F0",
   },
   appName: {
-    color: "#fff",
+    color: "#0070F0",
     fontSize: 20,
     fontWeight: "600",
   },

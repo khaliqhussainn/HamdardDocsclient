@@ -106,8 +106,8 @@ const careerFields = [
 const Roadmap = () => {
   return (
     <LinearGradient
-      colors={['#6b2488', '#151537', '#1a2c6b']}
-      locations={[0, 0.3, 1]}
+      colors={['#FFFFFF', '#62B1DD']}
+      locations={[0.2, 1]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
       style={styles.gradientBackground}
@@ -222,7 +222,7 @@ const styles = StyleSheet.create({
   headerContainer: {
     alignItems: 'center',
     marginBottom: 40,
-    backgroundColor: '#CC00FE',
+    backgroundColor: '#62B1DD',
     paddingVertical: 20,
     borderRadius: 15,
     shadowColor: '#000',
@@ -240,7 +240,7 @@ const styles = StyleSheet.create({
   },
   subtitle: {
     fontSize: 16,
-    color: '#A0A0A0',
+    color: '#FFFFFF',
     letterSpacing: 1,
     marginTop: 8,
   },
@@ -278,7 +278,7 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   timelineContent: {
-    backgroundColor: '#2A264B',
+    backgroundColor: '#FFFFFF',
     borderRadius: 15,
     padding: 20,
     borderLeftWidth: 5,
@@ -286,11 +286,11 @@ const styles = StyleSheet.create({
   categoryTitle: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: '#2A264B',
     marginBottom: 10,
   },
   categoryDescription: {
-    color: '#B0B0B0',
+    color: '#666666',
     marginBottom: 15,
     fontSize: 16,
     lineHeight: 24,
@@ -298,11 +298,11 @@ const styles = StyleSheet.create({
   },
   sectionSeparator: {
     height: 1,
-    backgroundColor: '#CC00FE',
+    backgroundColor: '#62B1DD',
     marginVertical: 15,
   },
   sectionTitle: {
-    color: '#FFFFFF',
+    color: '#2A264B',
     fontSize: 20,
     fontWeight: '600',
     marginBottom: 10,
@@ -313,12 +313,12 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   skillDot: {
-    color: '#FFFFFF',
+    color: '#62B1DD',
     marginRight: 10,
     fontSize: 18,
   },
   skillText: {
-    color: '#B0B0B0',
+    color: '#666666',
     fontSize: 16,
     flex: 1,
   },
@@ -328,7 +328,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   techBadge: {
-    backgroundColor: '#CC00FE',
+    backgroundColor: '#62B1DD',
     borderRadius: 25,
     paddingHorizontal: 15,
     paddingVertical: 8,
@@ -340,7 +340,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   roadmapContainer: {
-    backgroundColor: 'rgba(8, 13, 21, 0.8)',
+    backgroundColor: '#FFFFFF',
     borderRadius: 15,
     padding: 25,
     shadowColor: '#000',
@@ -352,7 +352,7 @@ const styles = StyleSheet.create({
   roadmapTitle: {
     fontSize: 32,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: '#2A264B',
     textAlign: 'center',
     marginBottom: 30,
     textTransform: 'uppercase',
@@ -383,12 +383,12 @@ const styles = StyleSheet.create({
   stageTitle: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#FFFFFF',
+    color: '#2A264B',
     marginBottom: 8,
     width: 200, 
   },
   stageDescription: {
-    color: '#B0B0B0',
+    color: '#666666',
     fontSize: 16,
     lineHeight: 22,
     width: 200, 

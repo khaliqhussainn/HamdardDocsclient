@@ -21,8 +21,7 @@ const Help = () => {
   return (
     <SafeAreaView style={styles.container}>
       <LinearGradient
-        colors={["#6b2488", "#151537", "#1a2c6b"]}
-        locations={[0, 0.3, 1]}
+        colors={["#62B1DD", "#ffffff"]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.gradient}
@@ -39,7 +38,7 @@ const Help = () => {
             <View style={styles.card}>
               <View style={styles.cardHeader}>
                 <View style={styles.iconContainer}>
-                  <Ionicons name="book-outline" size={24} color="#ffffff" />
+                  <Ionicons name="book-outline" size={24} color="#62B1DD" />
                 </View>
                 <Text style={styles.sectionTitle}>How to Use the App</Text>
               </View>
@@ -81,7 +80,7 @@ const Help = () => {
                   <Ionicons
                     name="help-circle-outline"
                     size={24}
-                    color="#ffffff"
+                    color="#62B1DD"
                   />
                 </View>
                 <Text style={styles.sectionTitle}>
@@ -119,7 +118,7 @@ const Help = () => {
             >
               <View style={styles.cardHeader}>
                 <View style={[styles.iconContainer, styles.contactIcon]}>
-                  <Ionicons name="mail-outline" size={24} color="#ffffff" />
+                  <Ionicons name="mail-outline" size={24} color="#62B1DD" />
                 </View>
                 <Text style={styles.sectionTitle}>Contact Support</Text>
               </View>
@@ -127,7 +126,7 @@ const Help = () => {
                 Need additional help? Feel free to reach out to our support team.
               </Text>
               <View style={styles.emailContainer}>
-                <Ionicons name="mail" size={20} color="#ffffff" />
+                <Ionicons name="mail" size={20} color="#62B1DD" />
                 <Text style={styles.emailText}>khaliquehussain7@gmail.com</Text>
               </View>
             </Pressable>
@@ -148,6 +147,7 @@ const styles = StyleSheet.create({
   header: {
     padding: 24,
     paddingBottom: 16,
+    backgroundColor: "transparent",
   },
   title: {
     fontSize: 32,
@@ -160,11 +160,23 @@ const styles = StyleSheet.create({
     color: "#e1e5ee",
   },
   content: {
-    paddingHorizontal: 16,
-    paddingBottom: 24,
+    flex: 1,
+    backgroundColor: "#ffffff",
+    borderTopLeftRadius: 30,
+    borderTopRightRadius: 30,
+    padding: 20,
+    paddingTop: 30,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   card: {
-    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    backgroundColor: "#ffffff",
     borderRadius: 20,
     padding: 24,
     marginBottom: 16,
@@ -175,7 +187,7 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   cardPressed: {
-    backgroundColor: "rgba(255, 255, 255, 0.05)",
+    backgroundColor: "rgba(255, 255, 255, 0.9)",
     transform: [{ scale: 0.98 }],
   },
   cardHeader: {
@@ -187,22 +199,22 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 12,
-    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    backgroundColor: "rgba(98, 177, 221, 0.2)",
     justifyContent: "center",
     alignItems: "center",
     marginRight: 12,
   },
   contactIcon: {
-    backgroundColor: "rgba(255, 255, 255, 0.3)",
+    backgroundColor: "rgba(98, 177, 221, 0.3)",
   },
   sectionTitle: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "#ffffff",
+    color: "#333333",
   },
   description: {
     fontSize: 16,
-    color: "#e1e5ee",
+    color: "#64748b",
     marginBottom: 16,
     lineHeight: 24,
   },
@@ -217,56 +229,56 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: "#ffffff",
+    backgroundColor: "#62B1DD",
     justifyContent: "center",
     alignItems: "center",
     marginRight: 12,
   },
   stepNumberText: {
-    color: "#1a2c6b",
+    color: "#ffffff",
     fontSize: 14,
     fontWeight: "bold",
   },
   stepText: {
     flex: 1,
     fontSize: 16,
-    color: "#ffffff",
+    color: "#333333",
     lineHeight: 24,
   },
   faqItem: {
     marginBottom: 16,
     padding: 16,
-    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    backgroundColor: "rgba(98, 177, 221, 0.1)",
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.2)",
+    borderColor: "rgba(98, 177, 221, 0.2)",
   },
   faqQuestion: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#ffffff",
+    color: "#333333",
     marginBottom: 8,
   },
   faqAnswer: {
     fontSize: 15,
-    color: "#e1e5ee",
+    color: "#64748b",
     lineHeight: 22,
   },
   contactCard: {
     borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.2)",
+    borderColor: "rgba(98, 177, 221, 0.2)",
   },
   emailContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    backgroundColor: "rgba(98, 177, 221, 0.1)",
     padding: 16,
     borderRadius: 12,
     gap: 12,
   },
   emailText: {
     fontSize: 16,
-    color: "#ffffff",
+    color: "#333333",
     fontWeight: "500",
   },
 });

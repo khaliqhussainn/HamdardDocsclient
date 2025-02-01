@@ -5,7 +5,7 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import { LinearGradient } from "expo-linear-gradient";
 
 // Updated color scheme
-const PRIMARY_COLOR = "#e81cff";
+const PRIMARY_COLOR = "#0070F0";
 const SECONDARY_COLOR = "#40c9ff";
 const ACCENT_COLOR = "#bf40ff";
 const TEXT_COLOR = "#ffffff";
@@ -21,7 +21,7 @@ const Settings = () => {
 
   return (
     <LinearGradient
-      colors={["#e81cff", "#40c9ff"]}
+      colors={["#0070F0", "#62B1DD"]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
       style={styles.container}
@@ -33,33 +33,39 @@ const Settings = () => {
       <View style={styles.content}>
         <View style={styles.section}>
           <LinearGradient
-            colors={["#e81cff", "#40c9ff"]}
+            colors={["#0070F0", "#62B1DD"]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={styles.sectionIconContainer}
           >
-            <Ionicons name="notifications-outline" size={24} color={TEXT_COLOR} />
+            <Ionicons
+              name="notifications-outline"
+              size={24}
+              color={TEXT_COLOR}
+            />
           </LinearGradient>
           <View style={styles.sectionContent}>
             <Text style={styles.sectionTitle}>Notifications</Text>
-            <Text style={styles.sectionDescription}>Manage your notifications</Text>
+            <Text style={styles.sectionDescription}>
+              Manage your notifications
+            </Text>
           </View>
           <Switch
             value={notificationsEnabled}
             onValueChange={toggleNotifications}
-            trackColor={{ false: "#cbd5e1", true: "#224690" }}
-            thumbColor={notificationsEnabled ? PRIMARY_COLOR : "#224690"}
+            trackColor={{ false: "#0070F0", true: "#62B1DD" }}
+            thumbColor={notificationsEnabled ? "#0070F0" : "#224690"}
             style={styles.switch}
           />
         </View>
 
-        <Pressable 
+        <Pressable
           style={styles.section}
           onPress={() => navigation.navigate("Profile")}
-          android_ripple={{ color: 'rgba(232, 28, 255, 0.1)' }}
+          android_ripple={{ color: "rgba(232, 28, 255, 0.1)" }}
         >
           <LinearGradient
-            colors={["#e81cff", "#40c9ff"]}
+            colors={["#0070F0", "#62B1DD"]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={styles.sectionIconContainer}
@@ -70,16 +76,16 @@ const Settings = () => {
             <Text style={styles.sectionTitle}>Profile Settings</Text>
             <Text style={styles.sectionDescription}>Manage your profile</Text>
           </View>
-          <Ionicons 
-            name="chevron-forward-outline" 
-            size={24} 
+          <Ionicons
+            name="chevron-forward-outline"
+            size={24}
             color={PRIMARY_COLOR}
           />
         </Pressable>
 
         <View style={styles.section}>
           <LinearGradient
-            colors={["#e81cff", "#40c9ff"]}
+            colors={["#0070F0", "#62B1DD"]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={styles.sectionIconContainer}
@@ -88,11 +94,13 @@ const Settings = () => {
           </LinearGradient>
           <View style={styles.sectionContent}>
             <Text style={styles.sectionTitle}>App Settings</Text>
-            <Text style={styles.sectionDescription}>Customize your experience</Text>
+            <Text style={styles.sectionDescription}>
+              Customize your experience
+            </Text>
           </View>
-          <Ionicons 
-            name="chevron-forward-outline" 
-            size={24} 
+          <Ionicons
+            name="chevron-forward-outline"
+            size={24}
             color={PRIMARY_COLOR}
           />
         </View>
@@ -109,6 +117,7 @@ const styles = StyleSheet.create({
     padding: 20,
     paddingTop: 60,
     paddingBottom: 30,
+    backgroundColor: "transparent",
   },
   title: {
     fontSize: 34,
@@ -118,11 +127,19 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    backgroundColor: "#151537",
+    backgroundColor: "#ffffff",
     borderTopLeftRadius: 30,
     borderTopRightRadius: 30,
     padding: 20,
     paddingTop: 30,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
   section: {
     flexDirection: "row",
@@ -130,7 +147,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     padding: 16,
     borderRadius: 16,
-    backgroundColor: "#161537",
+    backgroundColor: "#ffffff",
     shadowColor: PRIMARY_COLOR,
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.15,
@@ -151,7 +168,7 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#fff",
+    color: "#333333",
     marginBottom: 4,
   },
   sectionDescription: {

@@ -16,6 +16,14 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from 'expo-linear-gradient';
 
+// Updated color scheme
+const PRIMARY_COLOR = "#62B1DD";
+const SECONDARY_COLOR = "#4B8FB3";
+const ACCENT_COLOR = "#3A7DA1";
+const BACKGROUND_COLOR = "#FFFFFF";
+const TEXT_DARK = "#2C3E50";
+const TEXT_LIGHT = "#607D8B";
+
 const Profile = () => {
   const navigation = useNavigation();
   const auth = getAuth();
@@ -24,8 +32,8 @@ const Profile = () => {
   const [course, setCourse] = useState("");
   const [image, setImage] = useState(null);
 
-  const gradientColors = ['#6b2488', '#151537', '#1a2c6b'];
-  const gradientLocations = [0, 0.3, 1];
+  const gradientColors = ["#0070F0", "#62B1DD"];
+  const gradientLocations = [0, 0.5, 1];
   const gradientStart = { x: 0, y: 0 };
   const gradientEnd = { x: 1, y: 1 };
 
@@ -87,19 +95,23 @@ const Profile = () => {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <LinearGradient
-        colors={gradientColors}
-        locations={gradientLocations}
-        start={gradientStart}
-        end={gradientEnd}
+      <ScrollView 
+        contentContainerStyle={styles.scrollViewContent} 
+        showsVerticalScrollIndicator={false}
         style={styles.container}
       >
-        <ScrollView contentContainerStyle={styles.scrollViewContent} showsVerticalScrollIndicator={false}>
-          <View style={styles.header}>
-            <Text style={styles.title}>Profile</Text>
-            <Text style={styles.subtitle}>Manage your profile information</Text>
-          </View>
+        <LinearGradient
+          colors={gradientColors}
+          locations={gradientLocations}
+          start={gradientStart}
+          end={gradientEnd}
+          style={styles.header}
+        >
+          <Text style={styles.title}>Profile</Text>
+          <Text style={styles.subtitle}>Manage your profile information</Text>
+        </LinearGradient>
 
+        <View style={styles.contentContainer}>
           <View style={styles.card}>
             <View style={styles.userInfo}>
               <Pressable onPress={pickImage} style={styles.imageContainer}>
@@ -109,7 +121,7 @@ const Profile = () => {
                   alt="profile"
                 />
                 <View style={styles.imageOverlay}>
-                  <Ionicons name="camera" size={24} color="#fff" />
+                  <Ionicons name="camera" size={24} color={BACKGROUND_COLOR} />
                 </View>
               </Pressable>
               <View style={styles.userDetails}>
@@ -125,7 +137,7 @@ const Profile = () => {
                 placeholder="Enter your name"
                 value={name}
                 onChangeText={setName}
-                placeholderTextColor="rgba(255, 255, 255, 0.5)"
+                placeholderTextColor={TEXT_LIGHT}
               />
 
               <Text style={styles.inputLabel}>Course</Text>
@@ -134,7 +146,7 @@ const Profile = () => {
                 placeholder="Enter your course"
                 value={course}
                 onChangeText={setCourse}
-                placeholderTextColor="rgba(255, 255, 255, 0.5)"
+                placeholderTextColor={TEXT_LIGHT}
               />
 
               <Pressable
@@ -144,7 +156,14 @@ const Profile = () => {
                 ]}
                 onPress={handleUpdateProfile}
               >
-                <Text style={styles.saveButtonText}>Save Changes</Text>
+                <LinearGradient
+                  colors={gradientColors}
+                  start={gradientStart}
+                  end={gradientEnd}
+                  style={styles.gradientButton}
+                >
+                  <Text style={styles.saveButtonText}>Save Changes</Text>
+                </LinearGradient>
               </Pressable>
             </View>
           </View>
@@ -159,8 +178,8 @@ const Profile = () => {
                 ]}
                 onPress={() => navigation.navigate("Help")}
               >
-                <View style={styles.optionIcon}>
-                  <Ionicons name="help-circle" size={24} color="#6b2488" />
+                <View style={[styles.optionIcon, { backgroundColor: PRIMARY_COLOR }]}>
+                  <Ionicons name="help-circle" size={24} color={BACKGROUND_COLOR} />
                 </View>
                 <View style={styles.optionContent}>
                   <Text style={styles.optionTitle}>Help & Support</Text>
@@ -168,7 +187,7 @@ const Profile = () => {
                     Get assistance and answers to your questions
                   </Text>
                 </View>
-                <Ionicons name="chevron-forward" size={24} color="#6b2488" />
+                <Ionicons name="chevron-forward" size={24} color={PRIMARY_COLOR} />
               </Pressable>
 
               <Pressable
@@ -178,8 +197,8 @@ const Profile = () => {
                 ]}
                 onPress={handleLogout}
               >
-                <View style={styles.optionIcon}>
-                  <Ionicons name="log-out" size={24} color="#dc2626" />
+                <View style={[styles.optionIcon, { backgroundColor: "#FF5757" }]}>
+                  <Ionicons name="log-out" size={24} color={BACKGROUND_COLOR} />
                 </View>
                 <View style={styles.optionContent}>
                   <Text style={[styles.optionTitle, styles.logoutText]}>
@@ -189,12 +208,12 @@ const Profile = () => {
                     Sign out from your account
                   </Text>
                 </View>
-                <Ionicons name="chevron-forward" size={24} color="#dc2626" />
+                <Ionicons name="chevron-forward" size={24} color="#FF5757" />
               </Pressable>
             </View>
           </View>
-        </ScrollView>
-      </LinearGradient>
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 };
@@ -202,35 +221,54 @@ const Profile = () => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
+    backgroundColor: BACKGROUND_COLOR,
   },
   container: {
     flex: 1,
+    backgroundColor: BACKGROUND_COLOR,
   },
   scrollViewContent: {
     flexGrow: 1,
-    paddingBottom: 24,
   },
   header: {
     padding: 24,
-    paddingBottom: 16,
+    paddingBottom: 32,
+    borderBottomLeftRadius: 30,
+    borderBottomRightRadius: 30,
+    elevation: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+  },
+  contentContainer: {
+    flex: 1,
+    marginTop: -20,
+    paddingHorizontal: 16,
+    paddingBottom: 24,
   },
   title: {
     fontSize: 32,
     fontWeight: "bold",
-    color: "#fff",
+    color: BACKGROUND_COLOR,
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
-    color: "rgba(255, 255, 255, 0.7)",
+    color: "rgba(255, 255, 255, 0.9)",
   },
   card: {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: BACKGROUND_COLOR,
     borderRadius: 20,
     padding: 24,
-    marginHorizontal: 16,
     marginBottom: 16,
-    backdropFilter: 'blur(10px)',
+    elevation: 4,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    borderWidth: 1,
+    borderColor: "#F0F0F0",
   },
   userInfo: {
     alignItems: "center",
@@ -245,13 +283,13 @@ const styles = StyleSheet.create({
     height: 120,
     borderRadius: 60,
     borderWidth: 4,
-    borderColor: "#6b2488",
+    borderColor: PRIMARY_COLOR,
   },
   imageOverlay: {
     position: "absolute",
     right: 0,
     bottom: 0,
-    backgroundColor: "#6b2488",
+    backgroundColor: PRIMARY_COLOR,
     borderRadius: 20,
     padding: 8,
     shadowColor: "#000",
@@ -266,12 +304,12 @@ const styles = StyleSheet.create({
   userName: {
     fontSize: 24,
     fontWeight: "bold",
-    color: "#fff",
+    color: TEXT_DARK,
     marginBottom: 4,
   },
   userEmail: {
     fontSize: 16,
-    color: "rgba(255, 255, 255, 0.7)",
+    color: TEXT_LIGHT,
   },
   inputContainer: {
     gap: 12,
@@ -279,38 +317,40 @@ const styles = StyleSheet.create({
   inputLabel: {
     fontSize: 14,
     fontWeight: "600",
-    color: "#fff",
+    color: TEXT_DARK,
     marginBottom: -4,
   },
   input: {
-    backgroundColor: '#2F2750',
+    backgroundColor: "#F7FAFC",
     borderRadius: 12,
     padding: 16,
     fontSize: 16,
-    color: "#fff",
+    color: TEXT_DARK,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
+    borderColor: "#E2E8F0",
   },
   saveButton: {
-    backgroundColor: "#C900FF",
     borderRadius: 12,
+    marginTop: 8,
+    overflow: 'hidden',
+  },
+  gradientButton: {
     padding: 16,
     alignItems: "center",
-    marginTop: 8,
   },
   buttonPressed: {
-    backgroundColor: "#581d70",
+    opacity: 0.9,
     transform: [{ scale: 0.98 }],
   },
   saveButtonText: {
-    color: "#fff",
+    color: BACKGROUND_COLOR,
     fontSize: 16,
     fontWeight: "600",
   },
   sectionTitle: {
     fontSize: 20,
     fontWeight: "bold",
-    color: "#fff",
+    color: TEXT_DARK,
     marginBottom: 16,
   },
   optionsContainer: {
@@ -320,20 +360,19 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     padding: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    backgroundColor: BACKGROUND_COLOR,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
+    borderColor: "#E2E8F0",
   },
   optionPressed: {
-    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+    backgroundColor: "#F7FAFC",
     transform: [{ scale: 0.98 }],
   },
   optionIcon: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "rgba(255, 255, 255, 0.9)",
     justifyContent: "center",
     alignItems: "center",
     marginRight: 12,
@@ -344,15 +383,15 @@ const styles = StyleSheet.create({
   optionTitle: {
     fontSize: 16,
     fontWeight: "600",
-    color: "#151537",
+    color: TEXT_DARK,
     marginBottom: 2,
   },
   optionDescription: {
     fontSize: 14,
-    color: "rgba(21, 21, 55, 0.7)",
+    color: TEXT_LIGHT,
   },
   logoutText: {
-    color: "#dc2626",
+    color: "#FF5757",
   },
 });
 

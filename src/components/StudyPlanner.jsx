@@ -30,11 +30,12 @@ Notifications.setNotificationHandler({
   }),
 });
 
-const PRIMARY_COLOR = "#6b2488";
-const SECONDARY_COLOR = "#151537";
-const ACCENT_COLOR = "#1a2c6b";
-const TEXT_COLOR = "#ffffff";
-const LIGHT_TEXT = "#e1e5ee";
+const PRIMARY_COLOR = "#62B1DD";
+const SECONDARY_COLOR = "#4B8FB3";
+const ACCENT_COLOR = "#3A7DA1";
+const TEXT_COLOR = "#2C3E50";
+const LIGHT_TEXT = "#607D8B";
+const BACKGROUND_COLOR = "#FFFFFF";
 
 const StudyPlanner = () => {
   const [studyPlan, setStudyPlan] = useState("");
@@ -178,7 +179,10 @@ const StudyPlanner = () => {
 
       return identifier;
     } catch (error) {
-      Alert.alert("Error", "Failed to set reminder. Please check the date and time.");
+      Alert.alert(
+        "Error",
+        "Failed to set reminder. Please check the date and time."
+      );
     }
   };
 
@@ -209,7 +213,7 @@ const StudyPlanner = () => {
 
   const renderStudyPlan = ({ item }) => (
     <LinearGradient
-      colors={[SECONDARY_COLOR, ACCENT_COLOR]}
+      colors={[BACKGROUND_COLOR, "#F8FBFD"]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
       style={styles.planItem}
@@ -253,15 +257,14 @@ const StudyPlanner = () => {
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
           <View style={styles.innerContainer}>
             <LinearGradient
-              colors={[PRIMARY_COLOR, SECONDARY_COLOR, ACCENT_COLOR]}
-              locations={[0, 0.3, 1]}
+              colors={["#0070F0", "#62B1DD"]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
               style={styles.header}
             >
               <Text style={styles.title}>Study Planner</Text>
               {isLoading ? (
-                <ActivityIndicator color={TEXT_COLOR} />
+                <ActivityIndicator color={BACKGROUND_COLOR} />
               ) : (
                 <Text style={styles.quote}>"{motivationQuote}"</Text>
               )}
@@ -273,7 +276,7 @@ const StudyPlanner = () => {
                 placeholder="Enter your study plan"
                 value={studyPlan}
                 onChangeText={setStudyPlan}
-                placeholderTextColor="#8895aa"
+                placeholderTextColor="#A0AEC0"
               />
 
               <View style={styles.dateTimeContainer}>
@@ -298,12 +301,6 @@ const StudyPlanner = () => {
 
               {showDatePicker && (
                 <View style={styles.datePickerContainer}>
-                  <TouchableOpacity
-                    style={styles.closeButton}
-                    onPress={() => setShowDatePicker(false)}
-                  >
-                    <Text style={styles.closeButtonText}>✕</Text>
-                  </TouchableOpacity>
                   <DateTimePickerModal
                     value={selectedDate}
                     mode={pickerMode}
@@ -312,11 +309,24 @@ const StudyPlanner = () => {
                     onChange={handleDateChange}
                     style={styles.datePicker}
                   />
+                  <TouchableOpacity
+                    style={styles.closeButton}
+                    onPress={() => setShowDatePicker(false)}
+                  >
+                    <Text style={styles.closeButtonText}>Done</Text>
+                  </TouchableOpacity>
                 </View>
               )}
 
               <TouchableOpacity style={styles.addButton} onPress={addStudyPlan}>
-                <Text style={styles.addButtonText}>Add Plan</Text>
+                <LinearGradient
+                  colors={["#0070F0", "#62B1DD"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+                  style={styles.addButtonGradient}
+                >
+                  <Text style={styles.addButtonText}>Add Plan</Text>
+                </LinearGradient>
               </TouchableOpacity>
             </View>
 
@@ -339,7 +349,7 @@ const StudyPlanner = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: SECONDARY_COLOR,
+    backgroundColor: BACKGROUND_COLOR,
   },
   scrollContainer: {
     flexGrow: 1,
@@ -354,38 +364,37 @@ const styles = StyleSheet.create({
     elevation: 8,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 5,
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
   },
   title: {
-    fontSize: 32,
+    fontSize: 34,
     fontWeight: "800",
-    color: TEXT_COLOR,
+    color: BACKGROUND_COLOR,
     marginBottom: 15,
     letterSpacing: 0.5,
   },
   quote: {
-    color: LIGHT_TEXT,
+    color: BACKGROUND_COLOR,
     fontStyle: "italic",
     fontSize: 16,
     marginTop: 8,
-    lineHeight: 22,
+    lineHeight: 24,
+    opacity: 0.9,
   },
   inputContainer: {
     padding: 20,
+    backgroundColor: BACKGROUND_COLOR,
   },
   input: {
-    backgroundColor: "#ffffff",
+    backgroundColor: "#F7FAFC",
     padding: 18,
     borderRadius: 15,
     marginBottom: 15,
     fontSize: 16,
-    elevation: 4,
-    shadowColor: PRIMARY_COLOR,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
-    color: PRIMARY_COLOR,
+    borderWidth: 1,
+    borderColor: "#E2E8F0",
+    color: TEXT_COLOR,
   },
   dateTimeContainer: {
     flexDirection: "row",
@@ -393,39 +402,41 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   datePickerButton: {
-    backgroundColor: "#ffffff",
+    backgroundColor: "#F7FAFC",
     padding: 18,
     borderRadius: 15,
     flex: 0.48,
-    elevation: 4,
-    shadowColor: PRIMARY_COLOR,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
+    borderWidth: 1,
+    borderColor: "#E2E8F0",
   },
   datePickerButtonText: {
-    color: PRIMARY_COLOR,
+    color: TEXT_COLOR,
     fontSize: 16,
     textAlign: "center",
   },
-  datePicker: {
-    backgroundColor: SECONDARY_COLOR,
+  datePickerContainer: {
+    backgroundColor: BACKGROUND_COLOR,
     borderRadius: 15,
+    padding: 15,
     marginBottom: 15,
+    borderWidth: 1,
+    borderColor: "#E2E8F0",
   },
   addButton: {
-    backgroundColor: PRIMARY_COLOR,
-    padding: 18,
     borderRadius: 15,
-    alignItems: "center",
+    overflow: "hidden",
     elevation: 4,
     shadowColor: PRIMARY_COLOR,
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 3,
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+  },
+  addButtonGradient: {
+    padding: 18,
+    alignItems: "center",
   },
   addButtonText: {
-    color: TEXT_COLOR,
+    color: BACKGROUND_COLOR,
     fontSize: 18,
     fontWeight: "600",
     letterSpacing: 0.5,
@@ -441,11 +452,13 @@ const styles = StyleSheet.create({
     padding: 20,
     borderRadius: 15,
     marginBottom: 15,
-    elevation: 4,
-    shadowColor: PRIMARY_COLOR,
+    elevation: 3,
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 3,
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    borderWidth: 1,
+    borderColor: "#E2E8F0",
   },
   planContent: {
     flex: 1,
@@ -458,12 +471,11 @@ const styles = StyleSheet.create({
   },
   completedPlan: {
     textDecorationLine: "line-through",
-    opacity: 0.7,
+    opacity: 0.6,
   },
   dateText: {
     fontSize: 14,
     color: LIGHT_TEXT,
-    opacity: 0.9,
   },
   buttonContainer: {
     flexDirection: "row",
@@ -471,37 +483,36 @@ const styles = StyleSheet.create({
     marginLeft: 10,
   },
   iconButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     justifyContent: "center",
     alignItems: "center",
     marginLeft: 8,
   },
   completeButton: {
-    backgroundColor: "#4CAF50",
+    backgroundColor: "#48BB78",
   },
   deleteButton: {
-    backgroundColor: "#FF5252",
+    backgroundColor: "#F56565",
   },
   iconText: {
-    color: TEXT_COLOR,
-    fontSize: 24,
+    color: BACKGROUND_COLOR,
+    fontSize: 20,
     fontWeight: "600",
   },
-  datePickerContainer: {
-    backgroundColor: SECONDARY_COLOR,
-    borderRadius: 15,
-    padding: 10,
-    marginBottom: 15,
-  },
   closeButton: {
-    alignSelf: "flex-end",
-    padding: 5,
+    alignSelf: "center",
+    paddingVertical: 8,
+    paddingHorizontal: 20,
+    backgroundColor: PRIMARY_COLOR,
+    borderRadius: 10,
+    marginTop: 10,
   },
   closeButtonText: {
-    color: TEXT_COLOR,
-    fontSize: 18,
+    color: BACKGROUND_COLOR,
+    fontSize: 16,
+    fontWeight: "500",
   },
 });
 

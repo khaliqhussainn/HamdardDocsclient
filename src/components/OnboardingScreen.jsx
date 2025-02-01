@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Image, Dimensions } from 'react-native';
 import Swiper from 'react-native-swiper';
 import { LinearGradient } from 'expo-linear-gradient';
+
+const { width } = Dimensions.get('window');
 
 const OnboardingScreen = ({ onContinue }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -40,117 +42,151 @@ const OnboardingScreen = ({ onContinue }) => {
         ]}
         onPress={isLastSlide ? onContinue : handleNext}
       >
-        <Text style={styles.buttonText}>
-          {isLastSlide ? 'Continue' : 'Next'}
-        </Text>
+        <LinearGradient
+          colors={['#62B1DD', '#4A90E2']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.buttonGradient}
+        >
+          <Text style={styles.buttonText}>
+            {isLastSlide ? 'Continue' : 'Next'}
+          </Text>
+        </LinearGradient>
       </TouchableOpacity>
     );
   };
 
   return (
-    <LinearGradient
-      colors={['#6b2488', '#151537', '#1a2c6b']}
-      locations={[0, 0.3, 1]}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-      style={styles.container}
-    >
-      <Swiper
-        style={styles.wrapper}
-        showsButtons={false}
-        dot={<View style={styles.dot} />}
-        activeDot={<View style={styles.activeDot} />}
-        paginationStyle={styles.pagination}
-        loop={false}
-        index={currentIndex}
-        onIndexChanged={(index) => setCurrentIndex(index)}
-        scrollEnabled={currentIndex < slides.length - 1}
+    <View style={styles.container}>
+      <LinearGradient
+        colors={['#FFFFFF', '#F5F9FC', '#EDF7FC']}
+        style={styles.gradient}
       >
-        {slides.map((slide, index) => (
-          <View key={index} style={styles.slide}>
-            <Image source={slide.image} style={styles.image} />
-            <Text style={styles.title}>{slide.title}</Text>
-            <Text style={styles.description}>{slide.description}</Text>
-            {renderButton(index)}
-          </View>
-        ))}
-      </Swiper>
-    </LinearGradient>
+        <View style={styles.contentContainer}>
+          <Swiper
+            style={styles.wrapper}
+            showsButtons={false}
+            dot={<View style={styles.dot} />}
+            activeDot={<View style={styles.activeDot} />}
+            paginationStyle={styles.pagination}
+            loop={false}
+            index={currentIndex}
+            onIndexChanged={(index) => setCurrentIndex(index)}
+            scrollEnabled={currentIndex < slides.length - 1}
+          >
+            {slides.map((slide, index) => (
+              <View key={index} style={styles.slide}>
+                <View style={styles.imageContainer}>
+                  <LinearGradient
+                    colors={['rgba(98, 177, 221, 0.1)', 'rgba(98, 177, 221, 0.05)']}
+                    style={styles.imageBackground}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                  >
+                    <Image source={slide.image} style={styles.image} />
+                  </LinearGradient>
+                </View>
+                <Text style={styles.title}>{slide.title}</Text>
+                <Text style={styles.description}>{slide.description}</Text>
+                {renderButton(index)}
+              </View>
+            ))}
+          </Swiper>
+        </View>
+      </LinearGradient>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#FFFFFF',
+  },
+  gradient: {
+    flex: 1,
+  },
+  contentContainer: {
+    flex: 1,
+    paddingTop: 60,
   },
   wrapper: {},
   slide: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 16,
+    padding: 24,
+  },
+  imageContainer: {
+    marginBottom: 40,
+    alignItems: 'center',
+  },
+  imageBackground: {
+    width: width * 0.8,
+    height: width * 0.8,
+    borderRadius: width * 0.4,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   image: {
-    width: 200,
-    height: 200,
-    marginBottom: 24,
-    borderRadius: 100, // Circular image
+    width: width * 0.6,
+    height: width * 0.6,
+    borderRadius: width * 0.3,
   },
   title: {
-    fontSize: 28,
+    fontSize: 32,
     marginBottom: 16,
     textAlign: 'center',
-    fontWeight: 'bold',
-    color: '#ffffff', // White text for better contrast
+    fontWeight: '800',
+    color: '#1A1A1A',
+    letterSpacing: -0.5,
   },
   description: {
     fontSize: 16,
-    marginBottom: 24,
+    lineHeight: 24,
+    marginBottom: 32,
     textAlign: 'center',
-    color: '#e1e5ee', // Light gray text for better contrast
+    color: '#666666',
+    paddingHorizontal: 20,
   },
   pagination: {
-    position: 'absolute',
-    bottom: 24,
+    bottom: 40,
   },
   dot: {
-    backgroundColor: 'rgba(255, 255, 255, 0.3)', // Semi-transparent white
+    backgroundColor: 'rgba(98, 177, 221, 0.3)',
     width: 8,
     height: 8,
     borderRadius: 4,
-    marginLeft: 3,
-    marginRight: 3,
-    marginTop: 3,
-    marginBottom: 3,
+    marginHorizontal: 4,
   },
   activeDot: {
-    backgroundColor: '#ffffff', // White for active dot
-    width: 8,
+    backgroundColor: '#62B1DD',
+    width: 24,
     height: 8,
     borderRadius: 4,
-    marginLeft: 3,
-    marginRight: 3,
-    marginTop: 3,
-    marginBottom: 3,
+    marginHorizontal: 4,
   },
   button: {
-    padding: 15,
+    width: width * 0.85,
+    height: 56,
     borderRadius: 28,
-    alignItems: 'center',
+    overflow: 'hidden',
+    elevation: 3,
+    shadowColor: '#62B1DD',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+  },
+  buttonGradient: {
+    flex: 1,
     justifyContent: 'center',
-    marginTop: 24,
-    width: '100%',
-  },
-  nextButton: {
-    backgroundColor: '#6b2488', // Primary color for next button
-  },
-  continueButton: {
-    backgroundColor: '#6b2488', // Accent color for continue button
+    alignItems: 'center',
   },
   buttonText: {
-    color: '#ffffff', // White text for buttons
-    fontSize: 16,
-    fontWeight: 'bold',
+    color: '#FFFFFF',
+    fontSize: 18,
+    fontWeight: '600',
+    letterSpacing: 0.5,
   },
 });
 

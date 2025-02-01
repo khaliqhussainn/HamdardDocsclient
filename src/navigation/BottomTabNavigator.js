@@ -6,7 +6,8 @@ import Profile from '../components/Profile';
 import GroupChat from '../components/GroupChat';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { StyleSheet, View, TouchableOpacity } from 'react-native';
+import { StyleSheet, View, TouchableOpacity , Platform} from 'react-native';
+import StudyPlanner from '../components/StudyPlanner';
 
 const Tab = createBottomTabNavigator();
 
@@ -14,12 +15,12 @@ const TabBar = ({ state, descriptors, navigation }) => {
   return (
     <View style={styles.tabBarContainer}>
       <LinearGradient
-        colors={['#6b2488', '#151537', '#1a2c6b']}
-        locations={[0, 0.5, 1]}
+        colors={['#ffffff', '#E8F4FA', '#F0F8FC']}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 0 }}
         style={styles.backgroundGradient}
       >
+        <View style={styles.texturePattern} />
         <View style={styles.tabBar}>
           {state.routes.map((route, index) => {
             const { options } = descriptors[route.key];
@@ -42,7 +43,7 @@ const TabBar = ({ state, descriptors, navigation }) => {
                 key={route.key}
                 onPress={onPress}
                 accessibilityState={{ selected: isFocused }}
-                colors={['#e81cff', '#40c9ff']}
+                colors={['#0070F0', '#0070F0']}
               >
                 <Ionicons
                   name={
@@ -51,7 +52,7 @@ const TabBar = ({ state, descriptors, navigation }) => {
                       : getIconName(route.name, false)
                   }
                   size={24}
-                  color={isFocused ? 'white' : 'rgba(255,255,255,0.6)'}
+                  color={isFocused ? 'white' : '#62B1DD'}
                 />
               </CustomTabBarButton>
             );
@@ -70,8 +71,8 @@ const getIconName = (routeName, focused) => {
       return focused ? 'book' : 'book-outline';
     case 'Profile':
       return focused ? 'person' : 'person-outline';
-    case 'GroupChat':
-      return focused ? 'chatbubbles' : 'chatbubbles-outline';
+    case 'StudyPlanner':
+      return focused ? 'calendar' : 'calendar-outline';
     default:
       return 'circle';
   }
@@ -87,7 +88,7 @@ const BottomTabNavigator = () => {
     >
       <Tab.Screen name="Home" component={HomeScreen} />
       <Tab.Screen name="Courses" component={MainScreen} />
-      <Tab.Screen name="GroupChat" component={GroupChat} />
+      <Tab.Screen name="StudyPlanner" component={StudyPlanner} />
       <Tab.Screen name="Profile" component={Profile} />
     </Tab.Navigator>
   );
@@ -132,15 +133,34 @@ const styles = StyleSheet.create({
     flex: 1,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    shadowColor: '#000',
+    shadowColor: '#62B1DD',
     shadowOffset: {
       width: 0,
       height: -4,
     },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
     elevation: 10,
-    
+    backgroundColor: '#ffffff',
+    borderTopWidth: 1,
+    borderColor: 'rgba(98, 177, 221, 0.1)',
+  },
+  texturePattern: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    opacity: 0.05,
+    backgroundImage: Platform.select({
+      web: `
+        linear-gradient(45deg, transparent 0%, transparent 45%, 
+        #62B1DD 45%, #62B1DD 55%, 
+        transparent 55%, transparent 100%)
+      `,
+      default: undefined,
+    }),
+    backgroundSize: '30px 30px',
   },
   tabBar: {
     flexDirection: 'row',

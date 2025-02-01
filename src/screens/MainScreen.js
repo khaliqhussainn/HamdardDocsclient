@@ -16,17 +16,17 @@ const { width } = Dimensions.get("window");
 const CourseCard = ({ title, description, onPress, icon }) => (
   <TouchableOpacity onPress={onPress} style={styles.courseCard}>
     <LinearGradient
-      colors={['rgba(107, 36, 136, 0.9)', 'rgba(26, 44, 107, 0.9)']}
+      colors={["#0070F0", "#62B1DD"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
       style={styles.gradient}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
     >
       <View style={styles.cardHeader}>
         <LinearGradient
-          colors={["#e81cff", "#40c9ff"]}
+          colors={["#0070F0", "#62B1DD"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
           style={styles.iconContainer}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
         >
           <Ionicons name={icon} size={32} color="#FFFFFF" />
         </LinearGradient>
@@ -50,14 +50,17 @@ const CourseCard = ({ title, description, onPress, icon }) => (
           <Text style={styles.statNumber}>6</Text>
           <Text style={styles.statLabel}>Semesters</Text>
         </View>
-        <LinearGradient
-          colors={["#e81cff", "#40c9ff"]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.learnMore}
-        >
-          <Ionicons name="arrow-forward" size={16} color="#FFFFFF" />
-        </LinearGradient>
+        <TouchableOpacity>
+          <LinearGradient
+            colors={["#3b82f6", "#60a5fa"]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.learnMore}
+          >
+            <Text style={styles.learnMoreText}>Open</Text>
+            <Ionicons name="arrow-forward" size={16} color="#FFFFFF" style={styles.learnMoreIcon} />
+          </LinearGradient>
+        </TouchableOpacity>
       </View>
     </LinearGradient>
   </TouchableOpacity>
@@ -90,28 +93,34 @@ const MainScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <LinearGradient
-        colors={['#6b2488', '#151537', '#1a2c6b']}
-        locations={[0, 0.3, 1]}
+        colors={['rgba(59, 130, 246, 0.1)', 'rgba(255, 255, 255, 0)', 'rgba(59, 130, 246, 0.1)']}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.backgroundGradient}
       />
+      <View style={styles.topDecoration} />
+      <View style={styles.bottomDecoration} />
       <SafeAreaView style={styles.safeArea}>
-        <View style={styles.header}>
+        <LinearGradient
+          colors={['#1a365d', '#2563eb']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.header}
+        >
           <View style={styles.headerTop}>
             <TouchableOpacity
               style={styles.backButton}
               onPress={() => navigation.goBack()}
             >
-              <Ionicons name="arrow-back" size={24} color="#FFFFFF" />
+              <Ionicons name="arrow-back" size={24} color="#ffffff" />
             </TouchableOpacity>
             <TouchableOpacity style={styles.filterButton}>
-              <Ionicons name="filter" size={24} color="#FFFFFF" />
+              <Ionicons name="filter" size={24} color="#ffffff" />
             </TouchableOpacity>
           </View>
           <Text style={styles.title}>Explore Courses</Text>
           <Text style={styles.subtitle}>Find your perfect program</Text>
-        </View>
+        </LinearGradient>
 
         <ScrollView
           contentContainerStyle={styles.scrollContent}
@@ -135,6 +144,7 @@ const MainScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#f8fafc',
   },
   backgroundGradient: {
     position: 'absolute',
@@ -143,21 +153,42 @@ const styles = StyleSheet.create({
     top: 0,
     bottom: 0,
   },
+  topDecoration: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    width: width * 0.7,
+    height: width * 0.7,
+    backgroundColor: '#3b82f6',
+    opacity: 0.1,
+    borderBottomRightRadius: width,
+    transform: [{ translateX: -width * 0.3 }, { translateY: -width * 0.3 }],
+  },
+  bottomDecoration: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    width: width * 0.8,
+    height: width * 0.8,
+    backgroundColor: '#3b82f6',
+    opacity: 0.1,
+    borderTopLeftRadius: width,
+    transform: [{ translateX: width * 0.3 }, { translateY: width * 0.3 }],
+  },
   safeArea: {
     flex: 1,
   },
   header: {
     padding: 20,
-    backgroundColor: 'rgba(107, 36, 136, 0.2)',
     borderBottomLeftRadius: 30,
     borderBottomRightRadius: 30,
-    shadowColor: "#e81cff",
+    shadowColor: "#1e40af",
     shadowOffset: {
       width: 0,
       height: 4,
     },
     shadowOpacity: 0.2,
-    shadowRadius: 8,
+    shadowRadius: 12,
     elevation: 8,
   },
   headerTop: {
@@ -167,46 +198,48 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   backButton: {
-    padding: 8,
-    backgroundColor: "rgba(255,255,255,0.1)",
-    borderRadius: 12,
+    padding: 12,
+    backgroundColor: "rgba(255, 255, 255, 0.15)",
+    borderRadius: 14,
   },
   filterButton: {
-    padding: 8,
-    backgroundColor: "rgba(255,255,255,0.1)",
-    borderRadius: 12,
+    padding: 12,
+    backgroundColor: "rgba(255, 255, 255, 0.15)",
+    borderRadius: 14,
   },
   title: {
-    fontSize: 32,
-    fontWeight: "700",
-    color: "#FFFFFF",
+    fontSize: 34,
+    fontWeight: "800",
+    color: "#ffffff",
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
-    color: "rgba(255,255,255,0.7)",
+    color: "#bfdbfe",
     marginBottom: 10,
+    fontWeight: '500',
   },
   scrollContent: {
     padding: 20,
   },
   courseCard: {
-    height: 300,
+    height: 320,
     marginBottom: 20,
-    borderRadius: 20,
+    borderRadius: 24,
     overflow: "hidden",
-    shadowColor: "#e81cff",
+    shadowColor: "#1e40af",
     shadowOffset: {
       width: 0,
-      height: 4,
+      height: 8,
     },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 8,
+    shadowOpacity: 0.25,
+    shadowRadius: 16,
+    elevation: 10,
+    backgroundColor: '#fff',
   },
   gradient: {
     flex: 1,
-    padding: 20,
+    padding: 24,
     justifyContent: "space-between",
   },
   cardHeader: {
@@ -215,77 +248,98 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   iconContainer: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
     justifyContent: "center",
     alignItems: "center",
-    borderWidth: 1,
-    borderColor: "rgba(255,255,255,0.2)",
+    borderWidth: 2,
+    borderColor: "rgba(255, 255, 255, 0.3)",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 5,
   },
   cardBadge: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    backgroundColor: "rgba(255,255,255,0.15)",
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    backgroundColor: "rgba(255, 255, 255, 0.15)",
     borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.2)",
   },
   badgeText: {
-    color: "#FFFFFF",
-    fontSize: 12,
-    fontWeight: "600",
+    color: "#ffffff",
+    fontSize: 13,
+    fontWeight: "700",
   },
   cardContent: {
-    marginTop: 20,
+    marginTop: 24,
   },
   courseTitle: {
-    fontSize: 28,
-    fontWeight: "bold",
-    color: "#FFFFFF",
+    fontSize: 32,
+    fontWeight: "800",
+    color: "#fff",
     marginBottom: 8,
-    textShadowColor: 'rgba(232, 28, 255, 0.3)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
+    textShadowColor: 'rgba(0, 0, 0, 0.2)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 4,
   },
   courseDescription: {
     fontSize: 16,
-    color: "rgba(255,255,255,0.9)",
+    color: "#e0e7ff",
+    lineHeight: 24,
+    fontWeight: '500',
   },
   statsContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginTop: 20,
-    paddingTop: 20,
+    marginTop: 24,
+    paddingTop: 24,
     borderTopWidth: 1,
-    borderTopColor: "rgba(255,255,255,0.1)",
+    borderTopColor: "rgba(255, 255, 255, 0.15)",
   },
   stat: {
-    marginRight: 20,
+    marginRight: 24,
   },
   statDivider: {
     width: 1,
-    height: 30,
-    backgroundColor: "rgba(255,255,255,0.2)",
-    marginRight: 20,
+    height: 36,
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
+    marginRight: 24,
   },
   statNumber: {
-    fontSize: 24,
-    fontWeight: "bold",
-    color: "#FFFFFF",
-    textShadowColor: 'rgba(232, 28, 255, 0.3)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
+    fontSize: 26,
+    fontWeight: "800",
+    color: "#ffffff",
   },
   statLabel: {
     fontSize: 14,
-    color: "rgba(255,255,255,0.8)",
+    color: "#e0e7ff",
+    fontWeight: '500',
   },
   learnMore: {
     flexDirection: "row",
     alignItems: "center",
     marginLeft: "auto",
-    paddingHorizontal: 12,
-    paddingVertical: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
     borderRadius: 20,
+    borderWidth: 1,
+    borderColor: "rgba(255, 255, 255, 0.2)",
+  },
+  learnMoreText: {
+    color: "#ffffff",
+    fontSize: 14,
+    fontWeight: "600",
+    marginRight: 8,
+  },
+  learnMoreIcon: {
+    marginLeft: 4,
   },
 });
 
