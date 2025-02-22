@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, SafeAreaView, Dimensions } from 'react-native';
 import { LinearGradient } from "expo-linear-gradient";
+import { useTheme } from "../context/ThemeContext"; // Import the useTheme hook
 
 const { width } = Dimensions.get('window');
 
@@ -104,59 +105,61 @@ const careerFields = [
 ];
 
 const Roadmap = () => {
+  const { isDarkMode } = useTheme(); // Get the current theme
+
   return (
     <LinearGradient
-      colors={['#FFFFFF', '#62B1DD']}
+      colors={isDarkMode ? ['#000', '#000'] : ['#FFFFFF', '#62B1DD']}
       locations={[0.2, 1]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
-      style={styles.gradientBackground}
+      style={styles(isDarkMode).gradientBackground}
     >
-      <SafeAreaView style={styles.safeArea}>
+      <SafeAreaView style={styles(isDarkMode).safeArea}>
         <ScrollView
-          contentContainerStyle={styles.container}
+          contentContainerStyle={styles(isDarkMode).container}
           showsVerticalScrollIndicator={false}
         >
-          <View style={styles.headerContainer}>
-            <Text style={styles.title}>Roadmaps</Text>
-            <Text style={styles.subtitle}>Choose Your Career Path</Text>
+          <View style={styles(isDarkMode).headerContainer}>
+            <Text style={styles(isDarkMode).title}>Roadmaps</Text>
+            <Text style={styles(isDarkMode).subtitle}>Choose Your Career Path</Text>
           </View>
 
-          <View style={styles.timelineContainer}>
+          <View style={styles(isDarkMode).timelineContainer}>
             {careerFields.map((field, index) => (
-              <View key={field.category} style={styles.timelineItem}>
-                <View style={styles.timelineMarker}>
-                  <View style={[styles.timelineDot, { 
-                    backgroundColor: getColorForIndex(index) 
+              <View key={field.category} style={styles(isDarkMode).timelineItem}>
+                <View style={styles(isDarkMode).timelineMarker}>
+                  <View style={[styles(isDarkMode).timelineDot, {
+                    backgroundColor: getColorForIndex(index)
                   }]} />
                 </View>
-                <View style={styles.cardContainer}>
-                  <View style={[styles.timelineContent, { 
-                    borderLeftColor: getColorForIndex(index) 
+                <View style={styles(isDarkMode).cardContainer}>
+                  <View style={[styles(isDarkMode).timelineContent, {
+                    borderLeftColor: getColorForIndex(index)
                   }]}>
-                    <Text style={styles.categoryTitle}>{field.category}</Text>
-                    <Text style={styles.categoryDescription}>{field.description}</Text>
+                    <Text style={styles(isDarkMode).categoryTitle}>{field.category}</Text>
+                    <Text style={styles(isDarkMode).categoryDescription}>{field.description}</Text>
 
-                    <View style={styles.sectionSeparator} />
+                    <View style={styles(isDarkMode).sectionSeparator} />
 
-                    <View style={styles.skillsSection}>
-                      <Text style={styles.sectionTitle}>Key Skills</Text>
+                    <View style={styles(isDarkMode).skillsSection}>
+                      <Text style={styles(isDarkMode).sectionTitle}>Key Skills</Text>
                       {field.skills.map((skill) => (
-                        <View key={skill} style={styles.skillRow}>
-                          <Text style={styles.skillDot}>•</Text>
-                          <Text style={styles.skillText}>{skill}</Text>
+                        <View key={skill} style={styles(isDarkMode).skillRow}>
+                          <Text style={styles(isDarkMode).skillDot}>•</Text>
+                          <Text style={styles(isDarkMode).skillText}>{skill}</Text>
                         </View>
                       ))}
                     </View>
 
-                    <View style={styles.sectionSeparator} />
+                    <View style={styles(isDarkMode).sectionSeparator} />
 
-                    <View style={styles.technologiesSection}>
-                      <Text style={styles.sectionTitle}>Core Technologies</Text>
-                      <View style={styles.technologiesGrid}>
+                    <View style={styles(isDarkMode).technologiesSection}>
+                      <Text style={styles(isDarkMode).sectionTitle}>Core Technologies</Text>
+                      <View style={styles(isDarkMode).technologiesGrid}>
                         {field.technologies.map((tech) => (
-                          <View key={tech} style={styles.techBadge}>
-                            <Text style={styles.techBadgeText}>{tech.split(':')[0]}</Text>
+                          <View key={tech} style={styles(isDarkMode).techBadge}>
+                            <Text style={styles(isDarkMode).techBadgeText}>{tech.split(':')[0]}</Text>
                           </View>
                         ))}
                       </View>
@@ -167,23 +170,23 @@ const Roadmap = () => {
             ))}
           </View>
 
-          <View style={styles.roadmapContainer}>
-            <Text style={styles.roadmapTitle}>Career Evolution</Text>
+          <View style={styles(isDarkMode).roadmapContainer}>
+            <Text style={styles(isDarkMode).roadmapTitle}>Career Evolution</Text>
             {[
               { stage: 'Foundations', description: 'Build core competencies and technical fundamentals' },
               { stage: 'Specialization', description: 'Deep dive into chosen technological domain' },
               { stage: 'Professional Growth', description: 'Develop advanced skills and industry recognition' },
               { stage: 'Leadership', description: 'Drive innovation and strategic technological initiatives' }
             ].map((path, index) => (
-              <View key={path.stage} style={styles.evolutionStage}>
-                <View style={[styles.stageNumberContainer, { 
-                  backgroundColor: getColorForIndex(index) 
+              <View key={path.stage} style={styles(isDarkMode).evolutionStage}>
+                <View style={[styles(isDarkMode).stageNumberContainer, {
+                  backgroundColor: getColorForIndex(index)
                 }]}>
-                  <Text style={styles.stageNumber}>{index + 1}</Text>
+                  <Text style={styles(isDarkMode).stageNumber}>{index + 1}</Text>
                 </View>
-                <View style={styles.stageDetails}>
-                  <Text style={styles.stageTitle}>{path.stage}</Text>
-                  <Text style={styles.stageDescription}>{path.description}</Text>
+                <View style={styles(isDarkMode).stageDetails}>
+                  <Text style={styles(isDarkMode).stageTitle}>{path.stage}</Text>
+                  <Text style={styles(isDarkMode).stageDescription}>{path.description}</Text>
                 </View>
               </View>
             ))}
@@ -207,7 +210,7 @@ const getColorForIndex = (index) => {
   return colors[index % colors.length];
 };
 
-const styles = StyleSheet.create({
+const styles = (isDark) => StyleSheet.create({
   gradientBackground: {
     flex: 1,
   },
@@ -222,7 +225,7 @@ const styles = StyleSheet.create({
   headerContainer: {
     alignItems: 'center',
     marginBottom: 40,
-    backgroundColor: '#62B1DD',
+    backgroundColor: isDark ? '#2A2A2A' : '#62B1DD',
     paddingVertical: 20,
     borderRadius: 15,
     shadowColor: '#000',
@@ -234,20 +237,20 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 32,
     fontWeight: '800',
-    color: '#FFFFFF',
+    color: isDark ? '#FFFFFF' : '#FFFFFF',
     letterSpacing: 1,
     textTransform: 'uppercase',
   },
   subtitle: {
     fontSize: 16,
-    color: '#FFFFFF',
+    color: isDark ? '#FFFFFF' : '#FFFFFF',
     letterSpacing: 1,
     marginTop: 8,
   },
   timelineContainer: {
     marginBottom: 30,
     borderLeftWidth: 2,
-    borderLeftColor: '#2C2C2C',
+    borderLeftColor: isDark ? '#4A4A4A' : '#2C2C2C',
     paddingLeft: 20,
   },
   timelineItem: {
@@ -267,7 +270,7 @@ const styles = StyleSheet.create({
     height: 24,
     borderRadius: 12,
     borderWidth: 3,
-    borderColor: '#121212',
+    borderColor: isDark ? '#333333' : '#121212',
   },
   cardContainer: {
     flex: 1,
@@ -278,7 +281,7 @@ const styles = StyleSheet.create({
     elevation: 8,
   },
   timelineContent: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: isDark ? '#1A1A1A' : '#FFFFFF',
     borderRadius: 15,
     padding: 20,
     borderLeftWidth: 5,
@@ -286,11 +289,11 @@ const styles = StyleSheet.create({
   categoryTitle: {
     fontSize: 28,
     fontWeight: '700',
-    color: '#2A264B',
+    color: isDark ? '#FFFFFF' : '#2A264B',
     marginBottom: 10,
   },
   categoryDescription: {
-    color: '#666666',
+    color: isDark ? '#AAAAAA' : '#666666',
     marginBottom: 15,
     fontSize: 16,
     lineHeight: 24,
@@ -298,11 +301,11 @@ const styles = StyleSheet.create({
   },
   sectionSeparator: {
     height: 1,
-    backgroundColor: '#62B1DD',
+    backgroundColor: isDark ? '#4A4A4A' : '#62B1DD',
     marginVertical: 15,
   },
   sectionTitle: {
-    color: '#2A264B',
+    color: isDark ? '#FFFFFF' : '#2A264B',
     fontSize: 20,
     fontWeight: '600',
     marginBottom: 10,
@@ -313,12 +316,12 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   skillDot: {
-    color: '#62B1DD',
+    color: isDark ? '#AAAAAA' : '#62B1DD',
     marginRight: 10,
     fontSize: 18,
   },
   skillText: {
-    color: '#666666',
+    color: isDark ? '#AAAAAA' : '#666666',
     fontSize: 16,
     flex: 1,
   },
@@ -328,19 +331,19 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   techBadge: {
-    backgroundColor: '#62B1DD',
+    backgroundColor: isDark ? '#333333' : '#62B1DD',
     borderRadius: 25,
     paddingHorizontal: 15,
     paddingVertical: 8,
     margin: 5,
   },
   techBadgeText: {
-    color: '#FFFFFF',
+    color: isDark ? '#FFFFFF' : '#FFFFFF',
     fontSize: 14,
     fontWeight: '500',
   },
   roadmapContainer: {
-    backgroundColor: '#FFFFFF',
+    backgroundColor: isDark ? '#1A1A1A' : '#FFFFFF',
     borderRadius: 15,
     padding: 25,
     shadowColor: '#000',
@@ -352,7 +355,7 @@ const styles = StyleSheet.create({
   roadmapTitle: {
     fontSize: 32,
     fontWeight: '700',
-    color: '#2A264B',
+    color: isDark ? '#FFFFFF' : '#2A264B',
     textAlign: 'center',
     marginBottom: 30,
     textTransform: 'uppercase',
@@ -376,22 +379,22 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   stageNumber: {
-    color: '#FFFFFF',
+    color: isDark ? '#FFFFFF' : '#FFFFFF',
     fontSize: 32,
     fontWeight: 'bold',
   },
   stageTitle: {
     fontSize: 24,
     fontWeight: '700',
-    color: '#2A264B',
+    color: isDark ? '#FFFFFF' : '#2A264B',
     marginBottom: 8,
-    width: 200, 
+    width: 200,
   },
   stageDescription: {
-    color: '#666666',
+    color: isDark ? '#AAAAAA' : '#666666',
     fontSize: 16,
     lineHeight: 22,
-    width: 200, 
+    width: 200,
   },
 });
 

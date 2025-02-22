@@ -10,7 +10,7 @@
     },
     "production": {
       "env": {
-        "API_URL": "https://hamdarddocs.vercel.app/api"
+        "API_URL": "https://hamdarddocs-backend.onrender.com/api"
       }
     },
     "preview": {

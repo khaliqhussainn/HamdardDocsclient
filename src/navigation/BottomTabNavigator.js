@@ -3,25 +3,27 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import HomeScreen from '../screens/HomeScreen';
 import MainScreen from '../screens/MainScreen';
 import Profile from '../components/Profile';
-import GroupChat from '../components/GroupChat';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { StyleSheet, View, TouchableOpacity , Platform} from 'react-native';
+import { StyleSheet, View, TouchableOpacity, Platform } from 'react-native';
 import StudyPlanner from '../components/StudyPlanner';
+import { useTheme } from '../context/ThemeContext';
 
 const Tab = createBottomTabNavigator();
 
 const TabBar = ({ state, descriptors, navigation }) => {
+  const { isDarkMode } = useTheme();
+
   return (
-    <View style={styles.tabBarContainer}>
+    <View style={styles(isDarkMode).tabBarContainer}>
       <LinearGradient
-        colors={['#ffffff', '#E8F4FA', '#F0F8FC']}
+        colors={isDarkMode ? ['#0070F0', '#0070F0'] : ['#ffffff', '#E8F4FA', '#F0F8FC']}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 0 }}
-        style={styles.backgroundGradient}
+        style={styles(isDarkMode).backgroundGradient}
       >
-        <View style={styles.texturePattern} />
-        <View style={styles.tabBar}>
+        <View style={styles(isDarkMode).texturePattern} />
+        <View style={styles(isDarkMode).tabBar}>
           {state.routes.map((route, index) => {
             const { options } = descriptors[route.key];
             const isFocused = state.index === index;
@@ -43,7 +45,7 @@ const TabBar = ({ state, descriptors, navigation }) => {
                 key={route.key}
                 onPress={onPress}
                 accessibilityState={{ selected: isFocused }}
-                colors={['#0070F0', '#0070F0']}
+                colors={isDarkMode ? ['#000000', '#1A1A1A'] : ['#0070F0', '#0070F0']}
               >
                 <Ionicons
                   name={
@@ -52,7 +54,7 @@ const TabBar = ({ state, descriptors, navigation }) => {
                       : getIconName(route.name, false)
                   }
                   size={24}
-                  color={isFocused ? 'white' : '#62B1DD'}
+                  color={isFocused ? 'white' : isDarkMode ? '#FFFFFF' : '#62B1DD'}
                 />
               </CustomTabBarButton>
             );
@@ -101,7 +103,7 @@ const CustomTabBarButton = ({ children, onPress, accessibilityState, colors }) =
     <TouchableOpacity
       onPress={onPress}
       style={[
-        styles.tabBarButton,
+        styles().tabBarButton,
         isFocused && { backgroundColor: 'transparent' },
       ]}
     >
@@ -110,18 +112,18 @@ const CustomTabBarButton = ({ children, onPress, accessibilityState, colors }) =
           colors={colors}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
-          style={styles.gradientBackground}
+          style={styles().gradientBackground}
         >
           {children}
         </LinearGradient>
       ) : (
-        <View style={styles.defaultBackground}>{children}</View>
+        <View style={styles().defaultBackground}>{children}</View>
       )}
     </TouchableOpacity>
   );
 };
 
-const styles = StyleSheet.create({
+const styles = (isDark) => StyleSheet.create({
   tabBarContainer: {
     position: 'absolute',
     bottom: 0,
@@ -133,7 +135,7 @@ const styles = StyleSheet.create({
     flex: 1,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    shadowColor: '#62B1DD',
+    shadowColor: isDark ? '#000000' : '#62B1DD',
     shadowOffset: {
       width: 0,
       height: -4,
@@ -141,9 +143,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 10,
-    backgroundColor: '#ffffff',
+    backgroundColor: isDark ? '#000' : '#ffffff',
     borderTopWidth: 1,
-    borderColor: 'rgba(98, 177, 221, 0.1)',
+    borderColor: isDark ? 'rgba(0, 0, 0, 0.1)' : 'rgba(98, 177, 221, 0.1)',
   },
   texturePattern: {
     position: 'absolute',
@@ -154,8 +156,8 @@ const styles = StyleSheet.create({
     opacity: 0.05,
     backgroundImage: Platform.select({
       web: `
-        linear-gradient(45deg, transparent 0%, transparent 45%, 
-        #62B1DD 45%, #62B1DD 55%, 
+        linear-gradient(45deg, transparent 0%, transparent 45%,
+        ${isDark ? '#000000' : '#62B1DD'} 45%, ${isDark ? '#000000' : '#62B1DD'} 55%,
         transparent 55%, transparent 100%)
       `,
       default: undefined,

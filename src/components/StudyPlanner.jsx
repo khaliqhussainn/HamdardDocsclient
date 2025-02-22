@@ -19,6 +19,7 @@ import * as Notifications from "expo-notifications";
 import DateTimePickerModal from "@react-native-community/datetimepicker";
 import { LinearGradient } from "expo-linear-gradient";
 import Navbar from "./Navbar";
+import { useTheme } from "../context/ThemeContext";
 
 // Configure notifications
 Notifications.setNotificationHandler({
@@ -35,9 +36,13 @@ const SECONDARY_COLOR = "#4B8FB3";
 const ACCENT_COLOR = "#3A7DA1";
 const TEXT_COLOR = "#2C3E50";
 const LIGHT_TEXT = "#607D8B";
-const BACKGROUND_COLOR = "#FFFFFF";
+const BACKGROUND_COLOR_LIGHT = "#FFFFFF";
+const BACKGROUND_COLOR_DARK = "#000";
+const TEXT_COLOR_DARK = "#FFFFFF";
+const TEXT_COLOR_LIGHT = "#000000";
 
 const StudyPlanner = () => {
+  const { isDarkMode } = useTheme();
   const [studyPlan, setStudyPlan] = useState("");
   const [studyPlans, setStudyPlans] = useState([]);
   const [motivationQuote, setMotivationQuote] = useState("");
@@ -213,119 +218,119 @@ const StudyPlanner = () => {
 
   const renderStudyPlan = ({ item }) => (
     <LinearGradient
-      colors={[BACKGROUND_COLOR, "#F8FBFD"]}
+      colors={isDarkMode ? ["#1A1A1A", "#2A2A2A"] : [BACKGROUND_COLOR_LIGHT, "#F8FBFD"]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
-      style={styles.planItem}
+      style={styles(isDarkMode).planItem}
     >
-      <View style={styles.planContent}>
+      <View style={styles(isDarkMode).planContent}>
         <Text
-          style={[styles.planText, item.isCompleted && styles.completedPlan]}
+          style={[styles(isDarkMode).planText, item.isCompleted && styles(isDarkMode).completedPlan]}
         >
           {item.plan}
         </Text>
-        <Text style={styles.dateText}>
+        <Text style={styles(isDarkMode).dateText}>
           {new Date(item.date).toLocaleString()}
         </Text>
       </View>
-      <View style={styles.buttonContainer}>
+      <View style={styles(isDarkMode).buttonContainer}>
         {!item.isCompleted && (
           <TouchableOpacity
-            style={[styles.iconButton, styles.completeButton]}
+            style={[styles(isDarkMode).iconButton, styles(isDarkMode).completeButton]}
             onPress={() => markPlanAsCompleted(item.id)}
           >
-            <Text style={styles.iconText}>✓</Text>
+            <Text style={styles(isDarkMode).iconText}>✓</Text>
           </TouchableOpacity>
         )}
         <TouchableOpacity
-          style={[styles.iconButton, styles.deleteButton]}
+          style={[styles(isDarkMode).iconButton, styles(isDarkMode).deleteButton]}
           onPress={() => deletePlan(item.id)}
         >
-          <Text style={styles.iconText}>×</Text>
+          <Text style={styles(isDarkMode).iconText}>×</Text>
         </TouchableOpacity>
       </View>
     </LinearGradient>
   );
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles(isDarkMode).container}>
       <Navbar />
       <ScrollView
-        contentContainerStyle={styles.scrollContainer}
+        contentContainerStyle={styles(isDarkMode).scrollContainer}
         keyboardShouldPersistTaps="handled"
       >
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-          <View style={styles.innerContainer}>
+          <View style={styles(isDarkMode).innerContainer}>
             <LinearGradient
-              colors={["#0070F0", "#62B1DD"]}
+              colors={isDarkMode ? ["#0070F0", "#0070F0"] : ["#0070F0", "#62B1DD"]}
               start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.header}
+              end={{ x: 1, y: 0 }}
+              style={styles(isDarkMode).header}
             >
-              <Text style={styles.title}>Study Planner</Text>
+              <Text style={styles(isDarkMode).title}>Study Planner</Text>
               {isLoading ? (
-                <ActivityIndicator color={BACKGROUND_COLOR} />
+                <ActivityIndicator color={isDarkMode ? TEXT_COLOR_DARK : BACKGROUND_COLOR_LIGHT} />
               ) : (
-                <Text style={styles.quote}>"{motivationQuote}"</Text>
+                <Text style={styles(isDarkMode).quote}>"{motivationQuote}"</Text>
               )}
             </LinearGradient>
 
-            <View style={styles.inputContainer}>
+            <View style={styles(isDarkMode).inputContainer}>
               <TextInput
-                style={styles.input}
+                style={styles(isDarkMode).input}
                 placeholder="Enter your study plan"
                 value={studyPlan}
                 onChangeText={setStudyPlan}
-                placeholderTextColor="#A0AEC0"
+                placeholderTextColor={LIGHT_TEXT}
               />
 
-              <View style={styles.dateTimeContainer}>
+              <View style={styles(isDarkMode).dateTimeContainer}>
                 <TouchableOpacity
-                  style={styles.datePickerButton}
+                  style={styles(isDarkMode).datePickerButton}
                   onPress={() => showMode("date")}
                 >
-                  <Text style={styles.datePickerButtonText}>
+                  <Text style={styles(isDarkMode).datePickerButtonText}>
                     {selectedDate.toLocaleDateString()}
                   </Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
-                  style={styles.datePickerButton}
+                  style={styles(isDarkMode).datePickerButton}
                   onPress={() => showMode("time")}
                 >
-                  <Text style={styles.datePickerButtonText}>
+                  <Text style={styles(isDarkMode).datePickerButtonText}>
                     {selectedDate.toLocaleTimeString()}
                   </Text>
                 </TouchableOpacity>
               </View>
 
               {showDatePicker && (
-                <View style={styles.datePickerContainer}>
+                <View style={styles(isDarkMode).datePickerContainer}>
                   <DateTimePickerModal
                     value={selectedDate}
                     mode={pickerMode}
                     is24Hour={true}
                     display="spinner"
                     onChange={handleDateChange}
-                    style={styles.datePicker}
+                    style={styles(isDarkMode).datePicker}
                   />
                   <TouchableOpacity
-                    style={styles.closeButton}
+                    style={styles(isDarkMode).closeButton}
                     onPress={() => setShowDatePicker(false)}
                   >
-                    <Text style={styles.closeButtonText}>Done</Text>
+                    <Text style={styles(isDarkMode).closeButtonText}>Done</Text>
                   </TouchableOpacity>
                 </View>
               )}
 
-              <TouchableOpacity style={styles.addButton} onPress={addStudyPlan}>
+              <TouchableOpacity style={styles(isDarkMode).addButton} onPress={addStudyPlan}>
                 <LinearGradient
-                  colors={["#0070F0", "#62B1DD"]}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-                  style={styles.addButtonGradient}
+                  colors={isDarkMode ? ["#0070F0", "#0070F0"] : ["#0070F0", "#62B1DD"]}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={styles(isDarkMode).addButtonGradient}
                 >
-                  <Text style={styles.addButtonText}>Add Plan</Text>
+                  <Text style={styles(isDarkMode).addButtonText}>Add Plan</Text>
                 </LinearGradient>
               </TouchableOpacity>
             </View>
@@ -334,8 +339,8 @@ const StudyPlanner = () => {
               data={studyPlans}
               renderItem={renderStudyPlan}
               keyExtractor={(item) => item.id}
-              style={styles.list}
-              contentContainerStyle={styles.listContent}
+              style={styles(isDarkMode).list}
+              contentContainerStyle={styles(isDarkMode).listContent}
               scrollEnabled={false}
               nestedScrollEnabled={true}
             />
@@ -346,10 +351,10 @@ const StudyPlanner = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const styles = (isDark) => StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: BACKGROUND_COLOR,
+    backgroundColor: isDark ? BACKGROUND_COLOR_DARK : BACKGROUND_COLOR_LIGHT,
   },
   scrollContainer: {
     flexGrow: 1,
@@ -370,12 +375,12 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 34,
     fontWeight: "800",
-    color: BACKGROUND_COLOR,
+    color: isDark ? TEXT_COLOR_DARK : BACKGROUND_COLOR_LIGHT,
     marginBottom: 15,
     letterSpacing: 0.5,
   },
   quote: {
-    color: BACKGROUND_COLOR,
+    color: isDark ? TEXT_COLOR_DARK : BACKGROUND_COLOR_LIGHT,
     fontStyle: "italic",
     fontSize: 16,
     marginTop: 8,
@@ -384,17 +389,17 @@ const styles = StyleSheet.create({
   },
   inputContainer: {
     padding: 20,
-    backgroundColor: BACKGROUND_COLOR,
+    backgroundColor: isDark ? BACKGROUND_COLOR_DARK : BACKGROUND_COLOR_LIGHT,
   },
   input: {
-    backgroundColor: "#F7FAFC",
+    backgroundColor: isDark ? "#333333" : "#F7FAFC",
     padding: 18,
     borderRadius: 15,
     marginBottom: 15,
     fontSize: 16,
     borderWidth: 1,
-    borderColor: "#E2E8F0",
-    color: TEXT_COLOR,
+    borderColor: isDark ? "#444444" : "#E2E8F0",
+    color: isDark ? TEXT_COLOR_DARK : TEXT_COLOR_LIGHT,
   },
   dateTimeContainer: {
     flexDirection: "row",
@@ -402,25 +407,26 @@ const styles = StyleSheet.create({
     marginBottom: 15,
   },
   datePickerButton: {
-    backgroundColor: "#F7FAFC",
+    backgroundColor: isDark ? "#0070F0" : "#F7FAFC",
     padding: 18,
     borderRadius: 15,
     flex: 0.48,
     borderWidth: 1,
-    borderColor: "#E2E8F0",
+    borderColor: isDark ? "#444444" : "#E2E8F0",
   },
   datePickerButtonText: {
-    color: TEXT_COLOR,
+    color: isDark ? TEXT_COLOR_DARK : TEXT_COLOR_LIGHT,
     fontSize: 16,
     textAlign: "center",
   },
   datePickerContainer: {
-    backgroundColor: BACKGROUND_COLOR,
+    backgroundColor: isDark ? "#0070F090" : BACKGROUND_COLOR_LIGHT,
     borderRadius: 15,
     padding: 15,
     marginBottom: 15,
     borderWidth: 1,
-    borderColor: "#E2E8F0",
+    borderColor: isDark ? "#444444" : "#E2E8F0",
+    
   },
   addButton: {
     borderRadius: 15,
@@ -436,7 +442,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   addButtonText: {
-    color: BACKGROUND_COLOR,
+    color: isDark ? TEXT_COLOR_DARK : BACKGROUND_COLOR_LIGHT,
     fontSize: 18,
     fontWeight: "600",
     letterSpacing: 0.5,
@@ -458,14 +464,14 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 4,
     borderWidth: 1,
-    borderColor: "#E2E8F0",
+    borderColor: isDark ? "#444444" : "#E2E8F0",
   },
   planContent: {
     flex: 1,
   },
   planText: {
     fontSize: 18,
-    color: TEXT_COLOR,
+    color: isDark ? TEXT_COLOR_DARK : TEXT_COLOR_LIGHT,
     marginBottom: 8,
     fontWeight: "500",
   },
@@ -475,7 +481,7 @@ const styles = StyleSheet.create({
   },
   dateText: {
     fontSize: 14,
-    color: LIGHT_TEXT,
+    color: isDark ? LIGHT_TEXT : LIGHT_TEXT,
   },
   buttonContainer: {
     flexDirection: "row",
@@ -497,7 +503,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#F56565",
   },
   iconText: {
-    color: BACKGROUND_COLOR,
+    color: isDark ? TEXT_COLOR_DARK : BACKGROUND_COLOR_LIGHT,
     fontSize: 20,
     fontWeight: "600",
   },
@@ -510,7 +516,7 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   closeButtonText: {
-    color: BACKGROUND_COLOR,
+    color: isDark ? TEXT_COLOR_DARK : BACKGROUND_COLOR_LIGHT,
     fontSize: 16,
     fontWeight: "500",
   },

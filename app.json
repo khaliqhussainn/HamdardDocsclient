@@ -4,12 +4,12 @@
     "slug": "hamdarddocs",
     "version": "1.0.0",
     "orientation": "default",
-    "icon": "./assets/splash-icon.png",
+    "icon": "./assets/splash-icon.jpg",
     "scheme": "hamdarddocs",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./assets/splash-icon.jpg",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -32,7 +32,7 @@
     "android": {
       "package": "com.HamdardDocs.app",
       "adaptiveIcon": {
-        "foregroundImage": "./assets/splash-icon.png",
+        "foregroundImage": "./assets/splash-icon.jpg",
         "backgroundColor": "#ffffff"
       },
       "permissions": [

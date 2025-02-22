@@ -27,8 +27,10 @@ import {
 } from "@firebase/database";
 import { getAuth } from "@firebase/auth";
 import Ionicons from "react-native-vector-icons/Ionicons";
+import { useTheme } from "../context/ThemeContext";
 
 const GroupChat = () => {
+  const { isDarkMode } = useTheme();
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -111,18 +113,18 @@ const GroupChat = () => {
   };
 
   const ProfileImage = ({ user, size = 40 }) => (
-    <View style={[styles.profileImage, { width: size, height: size }]}>
+    <View style={[styles(isDarkMode).profileImage, { width: size, height: size }]}>
       {user.photoURL ? (
         <Image
           source={{ uri: user.photoURL }}
-          style={[styles.profileImage, { width: size, height: size }]}
+          style={[styles(isDarkMode).profileImage, { width: size, height: size }]}
         />
       ) : (
         <LinearGradient
-          colors={["#0070F0", "#62B1DD"]}
-          style={[styles.profileImage, { width: size, height: size }]}
+          colors={isDarkMode ? ["#000000", "#1A1A1A"] : ["#0070F0", "#62B1DD"]}
+          style={[styles(isDarkMode).profileImage, { width: size, height: size }]}
         >
-          <Text style={styles.profileInitials}>{getInitials(user.userEmail)}</Text>
+          <Text style={styles(isDarkMode).profileInitials}>{getInitials(user.userEmail)}</Text>
         </LinearGradient>
       )}
     </View>
@@ -138,50 +140,50 @@ const GroupChat = () => {
     return (
       <Animated.View style={{ opacity: fadeAnim }}>
         {showDateHeader && (
-          <View style={styles.dateHeader}>
+          <View style={styles(isDarkMode).dateHeader}>
             <LinearGradient
-              colors={["#0070F0", "#62B1DD"]}
+              colors={isDarkMode ? ["#000000", "#1A1A1A"] : ["#0070F0", "#62B1DD"]}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 0 }}
-              style={styles.dateHeaderGradient}
+              style={styles(isDarkMode).dateHeaderGradient}
             >
-              <Text style={styles.dateHeaderText}>
+              <Text style={styles(isDarkMode).dateHeaderText}>
                 {new Date(item.timestamp).toLocaleDateString()}
               </Text>
             </LinearGradient>
           </View>
         )}
         <View style={[
-          styles.messageRow,
-          isCurrentUser ? styles.currentUserRow : styles.otherUserRow
+          styles(isDarkMode).messageRow,
+          isCurrentUser ? styles(isDarkMode).currentUserRow : styles(isDarkMode).otherUserRow
         ]}>
           {!isCurrentUser && <ProfileImage user={item} size={36} />}
           <LinearGradient
-            colors={isCurrentUser ? ["#0070F0", "#62B1DD"] : ["#ffffff", "#f8f9fa"]}
+            colors={isCurrentUser ? ["#0070F0", "#62B1DD"] : isDarkMode ? ["#1A1A1A", "#2A2A2A"] : ["#ffffff", "#f8f9fa"]}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
             style={[
-              styles.messageContainer,
-              isCurrentUser ? styles.currentUserMessage : styles.otherUserMessage
+              styles(isDarkMode).messageContainer,
+              isCurrentUser ? styles(isDarkMode).currentUserMessage : styles(isDarkMode).otherUserMessage
             ]}
           >
             {!isCurrentUser && (
               <Text style={[
-                styles.userName,
-                { color: isCurrentUser ? "#ffffff" : "#0070F0" }
+                styles(isDarkMode).userName,
+                { color: isCurrentUser ? "#ffffff" : isDarkMode ? "#FFFFFF" : "#0070F0" }
               ]}>
                 {item.displayName || item.userEmail.split("@")[0]}
               </Text>
             )}
             <Text style={[
-              styles.messageText,
-              { color: isCurrentUser ? "#ffffff" : "#333333" }
+              styles(isDarkMode).messageText,
+              { color: isCurrentUser ? "#ffffff" : isDarkMode ? "#FFFFFF" : "#333333" }
             ]}>
               {item.text}
             </Text>
             <Text style={[
-              styles.timestamp,
-              { color: isCurrentUser ? "#ffffff90" : "#66666690" }
+              styles(isDarkMode).timestamp,
+              { color: isCurrentUser ? "#ffffff90" : isDarkMode ? "#FFFFFF90" : "#66666690" }
             ]}>
               {formatTimestamp(item.timestamp)}
             </Text>
@@ -198,33 +200,33 @@ const GroupChat = () => {
       animationType="slide"
       onRequestClose={() => setShowUsersModal(false)}
     >
-      <View style={styles.modalContainer}>
+      <View style={styles(isDarkMode).modalContainer}>
         <LinearGradient
-          colors={["#ffffff", "#62B1DD"]}
-          style={styles.modalContent}
+          colors={isDarkMode ? ["#1A1A1A", "#2A2A2A"] : ["#ffffff", "#62B1DD"]}
+          style={styles(isDarkMode).modalContent}
         >
-          <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>Active Users ({users.size})</Text>
+          <View style={styles(isDarkMode).modalHeader}>
+            <Text style={styles(isDarkMode).modalTitle}>Active Users ({users.size})</Text>
             <TouchableOpacity
-              style={styles.closeButton}
+              style={styles(isDarkMode).closeButton}
               onPress={() => setShowUsersModal(false)}
             >
-              <Ionicons name="close" size={24} color="#0070F0" />
+              <Ionicons name="close" size={24} color={isDarkMode ? "#FFFFFF" : "#0070F0"} />
             </TouchableOpacity>
           </View>
           <FlatList
             data={Array.from(users)}
             renderItem={({ item }) => (
               <LinearGradient
-                colors={["#ffffff", "#f8f9fa"]}
-                style={styles.modalUserItem}
+                colors={isDarkMode ? ["#1A1A1A", "#2A2A2A"] : ["#ffffff", "#f8f9fa"]}
+                style={styles(isDarkMode).modalUserItem}
               >
                 <ProfileImage user={{ userEmail: item }} size={44} />
-                <Text style={styles.modalUserName}>{item.split("@")[0]}</Text>
+                <Text style={styles(isDarkMode).modalUserName}>{item.split("@")[0]}</Text>
               </LinearGradient>
             )}
             keyExtractor={(item) => item}
-            ItemSeparatorComponent={() => <View style={styles.userSeparator} />}
+            ItemSeparatorComponent={() => <View style={styles(isDarkMode).userSeparator} />}
           />
         </LinearGradient>
       </View>
@@ -233,45 +235,45 @@ const GroupChat = () => {
 
   if (loading) {
     return (
-      <SafeAreaView style={styles.safeArea}>
+      <SafeAreaView style={styles(isDarkMode).safeArea}>
         <LinearGradient
-          colors={["#ffffff", "#62B1DD"]}
-          style={styles.loadingContainer}
+          colors={isDarkMode ? ["#1A1A1A", "#2A2A2A"] : ["#ffffff", "#62B1DD"]}
+          style={styles(isDarkMode).loadingContainer}
         >
-          <ActivityIndicator size="large" color="#0070F0" />
+          <ActivityIndicator size="large" color={isDarkMode ? "#FFFFFF" : "#0070F0"} />
         </LinearGradient>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={styles(isDarkMode).safeArea}>
       <KeyboardAvoidingView
         behavior={Platform.OS === "ios" ? "padding" : "height"}
-        style={styles.container}
+        style={styles(isDarkMode).container}
         keyboardVerticalOffset={Platform.OS === "ios" ? 60 : 0}
       >
         <LinearGradient
-          colors={["#ffffff", "#62B1DD"]}
+          colors={isDarkMode ? ["#1A1A1A", "#2A2A2A"] : ["#ffffff", "#62B1DD"]}
           locations={[0, 1]}
-          style={styles.container}
+          style={styles(isDarkMode).container}
         >
-          <View style={styles.header}>
+          <View style={styles(isDarkMode).header}>
             <TouchableOpacity
-              style={styles.userButton}
+              style={styles(isDarkMode).userButton}
               onPress={() => setShowUsersModal(true)}
             >
               <ProfileImage
                 user={{ userEmail: auth.currentUser.email }}
                 size={40}
               />
-              <View style={styles.userInfo}>
-                <Text style={styles.currentUserName}>
+              <View style={styles(isDarkMode).userInfo}>
+                <Text style={styles(isDarkMode).currentUserName}>
                   {auth.currentUser.displayName || auth.currentUser.email.split("@")[0]}
                 </Text>
-                <View style={styles.onlineStatus}>
-                  <View style={styles.onlineIndicator} />
-                  <Text style={styles.onlineText}>Online</Text>
+                <View style={styles(isDarkMode).onlineStatus}>
+                  <View style={styles(isDarkMode).onlineIndicator} />
+                  <Text style={styles(isDarkMode).onlineText}>Online</Text>
                 </View>
               </View>
             </TouchableOpacity>
@@ -285,9 +287,9 @@ const GroupChat = () => {
             onContentSizeChange={() => flatListRef.current?.scrollToEnd()}
             onLayout={() => flatListRef.current?.scrollToEnd()}
             ListEmptyComponent={
-              <View style={styles.emptyContainer}>
-                <Ionicons name="chatbubble-outline" size={48} color="#0070F0" />
-                <Text style={styles.emptyText}>
+              <View style={styles(isDarkMode).emptyContainer}>
+                <Ionicons name="chatbubble-outline" size={48} color={isDarkMode ? "#FFFFFF" : "#0070F0"} />
+                <Text style={styles(isDarkMode).emptyText}>
                   No messages yet. Start the conversation!
                 </Text>
               </View>
@@ -295,26 +297,26 @@ const GroupChat = () => {
           />
 
           <View
-            style={styles.inputContainer}
+            style={styles(isDarkMode).inputContainer}
           >
             <TextInput
-              style={styles.input}
+              style={styles(isDarkMode).input}
               value={message}
               onChangeText={setMessage}
               placeholder="Type your message..."
-              placeholderTextColor="#888"
+              placeholderTextColor={isDarkMode ? "#888888" : "#888"}
               multiline
               maxLength={500}
             />
             <TouchableOpacity
-              style={[styles.sendButton, !message.trim() && styles.sendButtonDisabled]}
+              style={[styles(isDarkMode).sendButton, !message.trim() && styles(isDarkMode).sendButtonDisabled]}
               onPress={sendMessage}
               disabled={!message.trim()}
             >
               <View
-                style={styles.sendButtonGradient}
+                style={styles(isDarkMode).sendButtonGradient}
               >
-                <Ionicons name="send" size={24} color="#ffffff" />
+                <Ionicons name="send" size={24} color={isDarkMode ? "#FFFFFF" : "#ffffff"} />
               </View>
             </TouchableOpacity>
           </View>
@@ -326,28 +328,28 @@ const GroupChat = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const styles = (isDark) => StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#0070F0",
+    backgroundColor: isDark ? "#0070F0" : "#0070F0",
   },
   container: {
     flex: 1,
   },
   header: {
-    padding: 16,
+    padding: 10,
     borderBottomWidth: 1,
-    borderBottomColor: "#62B1DD20",
-    backgroundColor: "#62B1DD",
+    borderBottomColor: isDark ? "#62B1DD20" : "#62B1DD20",
+    backgroundColor: isDark ? "#000" : "#62B1DD",
   },
   userButton: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#f8f9fa",
+    backgroundColor: isDark ? "#0070F0" : "#f8f9fa",
     padding: 12,
     borderRadius: 24,
     alignSelf: "flex-start",
-    shadowColor: "#000",
+    shadowColor: isDark ? "#000" : "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -357,7 +359,7 @@ const styles = StyleSheet.create({
     marginLeft: 12,
   },
   currentUserName: {
-    color: "#333333",
+    color: isDark ? "#FFFFFF" : "#333333",
     fontSize: 16,
     fontWeight: "600",
     marginBottom: 4,
@@ -370,11 +372,11 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: "#22c55e",
+    backgroundColor: isDark ? "#22c55e" : "#22c55e",
     marginRight: 6,
   },
   onlineText: {
-    color: "#666666",
+    color: isDark ? "#FFFFFF" : "#666666",
     fontSize: 12,
   },
   profileImage: {
@@ -384,7 +386,7 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   profileInitials: {
-    color: "#ffffff",
+    color: isDark ? "#FFFFFF" : "#ffffff",
     fontSize: 18,
     fontWeight: "600",
   },
@@ -405,7 +407,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     maxWidth: "75%",
     marginHorizontal: 8,
-    shadowColor: "#000",
+    shadowColor: isDark ? "#000" : "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -441,7 +443,7 @@ const styles = StyleSheet.create({
     borderRadius: 16,
   },
   dateHeaderText: {
-    color: "#ffffff",
+    color: isDark ? "#FFFFFF" : "#ffffff",
     fontSize: 13,
     fontWeight: "600",
   },
@@ -450,39 +452,39 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     padding: 16,
-    paddingBottom: Platform.OS === "ios" ? 32 : 16,
+    paddingBottom: Platform.OS === "ios" ? 16 : 16,
     borderTopWidth: 1,
-    borderTopColor: "#62B1DD20",
-    // backgroundColor: "#62B1DD",
+    borderTopColor: isDark ? "#62B1DD20" : "#62B1DD20",
+    // backgroundColor: isDark ? "#62B1DD" : "#62B1DD",
   },
   input: {
     flex: 1,
-    backgroundColor: "#ffffff",
-    color: "#333333",
+    backgroundColor: isDark ? "#FFFFFF" : "#ffffff",
+    color: isDark ? "#333333" : "#333333",
     borderRadius: 24,
     paddingHorizontal: 20,
     paddingVertical: 12,
     marginRight: 12,
     maxHeight: 100,
     borderWidth: 1,
-    borderColor: "#62B1DD30",
+    borderColor: isDark ? "#62B1DD30" : "#62B1DD30",
   },
   sendButton: {
-    backgroundColor: "#62B1DD",
+    backgroundColor: isDark ? "#62B1DD" : "#62B1DD",
     borderRadius: 20,
     paddingHorizontal: 16,
     justifyContent: "center",
   },
   sendButtonDisabled: {
-    backgroundColor: "#62B1DD50",
+    backgroundColor: isDark ? "" : "",
   },
   sendButtonText: {
-    color: "#fff",
+    color: isDark ? "#fff" : "#fff",
     fontSize: 16,
   },
   modalContainer: {
     flex: 1,
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    backgroundColor: isDark ? "rgba(0, 0, 0, 0.5)" : "rgba(0, 0, 0, 0.5)",
     justifyContent: "center",
     alignItems: "center",
   },
@@ -493,7 +495,7 @@ const styles = StyleSheet.create({
     maxHeight: "80%",
   },
   modalTitle: {
-    color: "#fff",
+    color: isDark ? "#FFFFFF" : "#fff",
     fontSize: 18,
     fontWeight: "bold",
     marginBottom: 16,
@@ -503,27 +505,27 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 8,
     borderBottomWidth: 1,
-    borderBottomColor: "rgba(255, 255, 255, 0.1)",
+    borderBottomColor: isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(255, 255, 255, 0.1)",
   },
   modalUserName: {
-    color: "#fff",
+    color: isDark ? "#FFFFFF" : "#fff",
     fontSize: 16,
     marginLeft: 12,
   },
   closeButton: {
-    backgroundColor: "#6b2488",
+    backgroundColor: isDark ? "#6b2488" : "#6b2488",
     padding: 12,
     borderRadius: 8,
     alignItems: "center",
     marginTop: 16,
   },
   closeButtonText: {
-    color: "#fff",
+    color: isDark ? "#FFFFFF" : "#fff",
     fontSize: 16,
     fontWeight: "bold",
   },
   emptyText: {
-    color: "#543378",
+    color: isDark ? "#FFFFFF" : "#543378",
     textAlign: "center",
     marginTop: 20,
   },

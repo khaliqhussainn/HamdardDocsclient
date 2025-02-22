@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import {
   View,
   Text,
@@ -20,10 +20,12 @@ import * as DocumentPicker from "expo-document-picker";
 import { useFocusEffect } from "@react-navigation/native";
 import { MaterialIcons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import Navbar from "@/src/components/Navbar";
+import * as FileSystem from 'expo-file-system';
+import * as Sharing from 'expo-sharing';
+import { useTheme } from "../../context/ThemeContext";
 
-// Constants
-const API_URL = "https://hamdard-docs.vercel.app";
+const API_URL = "https://hamdarddocs-backend.onrender.com/api";
+
 const ACCEPTED_FILE_TYPES = [
   "application/pdf",
   "application/msword",
@@ -46,43 +48,85 @@ const YEAR_MAPPING = {
 };
 
 const ResourcesScreen = () => {
-  // State Management
+  const { isDarkMode } = useTheme();
   const [resources, setResources] = useState({ notes: {}, questions: {} });
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [formData, setFormData] = useState(INITIAL_FORM_STATE);
   const [error, setError] = useState(null);
-  const [selectedYear, setSelectedYear] = useState(null);
+  const [selectedYear, setSelectedYear] = useState("1st Year"); // Default to "1st Year"
 
-  // Fetch Resources
-  const fetchResources = async () => {
+  const axiosInstance = axios.create({
+    baseURL: API_URL,
+    timeout: 30000, // Increase timeout to 30 seconds
+    headers: {
+      'Content-Type': 'application/json',
+    }
+  });
+
+  const fetchResources = async (retryCount = 0) => {
     try {
       setLoading(true);
       setError(null);
-      const response = await axios.get(`${API_URL}/files`, {
-        params: { year: YEAR_MAPPING[selectedYear] },
+
+      if (!selectedYear) {
+        setResources({ notes: {}, questions: {} });
+        return;
+      }
+
+      const response = await axiosInstance.get('/files', {
+        params: { year: YEAR_MAPPING[selectedYear] }
       });
+
+      if (!response.data) {
+        throw new Error('No data received from server');
+      }
+
       setResources(response.data);
     } catch (err) {
-      const errorMessage =
-        err.response?.data?.message || "Failed to fetch resources";
+      console.error('Resource fetch error:', err);
+
+      // Retry logic for network errors with exponential backoff
+      if (err.code === 'ECONNABORTED' && retryCount < 3) {
+        const retryDelay = Math.pow(2, retryCount) * 1000; // Exponential backoff
+        console.log(`Retrying request (${retryCount + 1}/3) after ${retryDelay / 1000} seconds...`);
+        setTimeout(() => fetchResources(retryCount + 1), retryDelay);
+        return;
+      }
+
+      const errorMessage = err.response?.data?.message ||
+        err.message ||
+        'Failed to fetch resources. Please try again.';
+
       setError(errorMessage);
-      Alert.alert("Error", errorMessage);
+      Alert.alert(
+        "Error Fetching Resources",
+        errorMessage,
+        [
+          {
+            text: "Retry",
+            onPress: () => fetchResources()
+          },
+          { text: "OK" }
+        ]
+      );
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
   };
 
-  // Auto-refresh when screen comes into focus
   useFocusEffect(
     useCallback(() => {
       fetchResources();
     }, [selectedYear])
   );
 
-  // Handle File Opening
+  useEffect(() => {
+    fetchResources();
+  }, []);
+
   const handleFileOpen = async (fileUrl) => {
     try {
       const supported = await Linking.canOpenURL(fileUrl);
@@ -98,13 +142,14 @@ const ResourcesScreen = () => {
       }
     } catch (error) {
       console.error("Error opening file:", error);
-      Alert.alert("Error", "Unable to open the file. Please try again later.", [
-        { text: "OK" },
-      ]);
+      Alert.alert(
+        "Error",
+        "Unable to open the file. Please try again later.",
+        [{ text: "OK" }]
+      );
     }
   };
 
-  // Form Input Handler
   const handleInputChange = (key, value) => {
     setFormData((prev) => ({
       ...prev,
@@ -112,7 +157,6 @@ const ResourcesScreen = () => {
     }));
   };
 
-  // Validate Form
   const validateForm = () => {
     const requiredFields = ["folder", "type"];
     const missingFields = requiredFields.filter((field) => !formData[field]);
@@ -128,7 +172,6 @@ const ResourcesScreen = () => {
     return true;
   };
 
-  // File Upload Handler
   const handleFileUpload = async () => {
     if (!validateForm()) return;
 
@@ -150,14 +193,13 @@ const ResourcesScreen = () => {
         name: file.name,
       });
 
-      // Append form data
       Object.keys(formData).forEach((key) => {
         if (formData[key]) {
           form.append(key, formData[key]);
         }
       });
 
-      await axios.post(`${API_URL}/files`, form, {
+      await axiosInstance.post('/files', form, {
         headers: { "Content-Type": "multipart/form-data" },
         transformRequest: (data) => data,
         onUploadProgress: (progressEvent) => {
@@ -172,70 +214,177 @@ const ResourcesScreen = () => {
       setFormData(INITIAL_FORM_STATE);
       fetchResources();
     } catch (error) {
-      const errorMessage =
-        error.response?.data?.message || "Failed to upload file";
-      Alert.alert("Error", errorMessage);
       console.error("File upload error:", error);
+      const errorMessage = error.response?.data?.message || "Failed to upload file";
+      Alert.alert("Error", errorMessage);
     } finally {
       setUploading(false);
     }
   };
 
-  // Render File Item
+  const [downloadProgress, setDownloadProgress] = useState({});
+
+  const handleFileDownload = async (fileUrl, fileName) => {
+    try {
+      const fileUri = FileSystem.documentDirectory + fileName;
+
+      // Initialize progress for this file
+      setDownloadProgress(prev => ({
+        ...prev,
+        [fileName]: 0
+      }));
+
+      const downloadResumable = FileSystem.createDownloadResumable(
+        fileUrl,
+        fileUri,
+        {},
+        (downloadProgress) => {
+          const progress = downloadProgress.totalBytesWritten / downloadProgress.totalBytesExpectedToWrite;
+          setDownloadProgress(prev => ({
+            ...prev,
+            [fileName]: progress
+          }));
+        }
+      );
+
+      const { uri } = await downloadResumable.downloadAsync();
+
+      // Clear progress after successful download
+      setDownloadProgress(prev => {
+        const newProgress = { ...prev };
+        delete newProgress[fileName];
+        return newProgress;
+      });
+
+      Alert.alert(
+        "Download Complete",
+        "Would you like to share or open this file?",
+        [
+          {
+            text: "Share",
+            onPress: () => Sharing.shareAsync(uri)
+          },
+          {
+            text: "Open",
+            onPress: () => Linking.openURL(uri)
+          },
+          { text: "Close" }
+        ]
+      );
+    } catch (error) {
+      console.error("Error downloading file:", error);
+      // Clear progress on error
+      setDownloadProgress(prev => {
+        const newProgress = { ...prev };
+        delete newProgress[fileName];
+        return newProgress;
+      });
+      Alert.alert(
+        "Error",
+        "Unable to download the file. Please try again later.",
+        [{ text: "OK" }]
+      );
+    }
+  };
+
   const renderFileItem = useCallback(
     ({ item: file }) => (
-      <TouchableOpacity
-        key={file.id}
-        style={styles.fileItem}
-        onPress={() => handleFileOpen(file.url)}
-        activeOpacity={0.7}
-      >
-        <View style={styles.fileContent}>
-          <View style={styles.fileHeader}>
-            <MaterialIcons
-              name={
-                file.extension?.toUpperCase() === "PDF"
-                  ? "picture-as-pdf"
-                  : "description"
-              }
-              size={24}
-              color="#ffffff"
-              style={styles.fileIcon}
-            />
-            <Text style={styles.fileName} numberOfLines={1}>
-              {file.title || "Untitled"}
-            </Text>
-            <View style={styles.fileTypeBadge}>
-              <Text style={styles.fileType}>{file.extension}</Text>
-            </View>
+      <View key={file.id} style={styles(isDarkMode).fileItem}>
+        <LinearGradient
+          colors={isDarkMode ? ['#1A1A1A', '#2A2A2A'] : ['#ffffff', '#f8f9fa']}
+          style={styles(isDarkMode).fileContent}
+        >
+          <View style={styles(isDarkMode).fileHeaderGradient}>
+            <LinearGradient
+              colors={isDarkMode ? ['#000000', '#1A1A1A'] : ['#0070F0', '#62B1DD']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={styles(isDarkMode).fileHeader}
+            >
+              <MaterialIcons
+                name={file.extension?.toUpperCase() === "PDF" ? "picture-as-pdf" : "description"}
+                size={24}
+                color={isDarkMode ? "#FFFFFF" : "#ffffff"}
+                style={styles(isDarkMode).fileIcon}
+              />
+              <Text style={styles(isDarkMode).fileName} numberOfLines={1}>
+                {file.title || "Untitled"}
+              </Text>
+              <View style={styles(isDarkMode).fileTypeBadge}>
+                <Text style={styles(isDarkMode).fileType}>{file.extension}</Text>
+              </View>
+            </LinearGradient>
           </View>
 
-          <View style={styles.fileDetails}>
+          <View style={styles(isDarkMode).fileDetails}>
             {file.subject && (
-              <View style={styles.badge}>
-                <Text style={styles.badgeText}>{file.subject}</Text>
+              <View style={styles(isDarkMode).badge}>
+                <Text style={styles(isDarkMode).badgeText}>{file.subject}</Text>
               </View>
             )}
             {file.year && (
-              <View style={styles.badge}>
-                <Text style={styles.badgeText}>{file.year}</Text>
+              <View style={styles(isDarkMode).badge}>
+                <Text style={styles(isDarkMode).badgeText}>{file.year}</Text>
               </View>
             )}
           </View>
-        </View>
-      </TouchableOpacity>
+
+          <View style={styles(isDarkMode).fileActions}>
+            <TouchableOpacity
+              style={styles(isDarkMode).fileActionButton}
+              onPress={() => handleFileOpen(file.url)}
+            >
+              <LinearGradient
+                colors={isDarkMode ? ['#000000', '#1A1A1A'] : ['#0070F0', '#62B1DD']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles(isDarkMode).actionButtonGradient}
+              >
+                <MaterialIcons name="visibility" size={20} color={isDarkMode ? "#FFFFFF" : "#ffffff"} />
+                <Text style={styles(isDarkMode).fileActionText}>View</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles(isDarkMode).fileActionButton}
+              onPress={() => handleFileDownload(file.url, file.title || "Untitled")}
+              disabled={downloadProgress[file.title] !== undefined}
+            >
+              <LinearGradient
+                colors={isDarkMode ? ['#000000', '#1A1A1A'] : ['#0070F0', '#62B1DD']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles(isDarkMode).actionButtonGradient}
+              >
+                {downloadProgress[file.title] !== undefined ? (
+                  <>
+                    <ActivityIndicator size="small" color={isDarkMode ? "#FFFFFF" : "#ffffff"} />
+                    <Text style={styles(isDarkMode).fileActionText}>
+                      {Math.round(downloadProgress[file.title] * 100)}%
+                    </Text>
+                  </>
+                ) : (
+                  <>
+                    <MaterialIcons name="file-download" size={20} color={isDarkMode ? "#FFFFFF" : "#ffffff"} />
+                    <Text style={styles(isDarkMode).fileActionText}>Download</Text>
+                  </>
+                )}
+              </LinearGradient>
+            </TouchableOpacity>
+          </View>
+        </LinearGradient>
+      </View>
     ),
-    []
+    [downloadProgress]
   );
 
-  // Render Input Field
   const renderInput = useCallback(
     ({ placeholder, value, key, required = false }) => (
-      <View style={styles.inputContainer}>
+      <View style={styles(isDarkMode).inputContainer}>
         <TextInput
-          style={[styles.input, formData[key] && styles.inputFilled]}
+          style={[styles(isDarkMode).input, formData[key] && styles(isDarkMode).inputFilled]}
           placeholder={`${placeholder}${required ? " *" : ""}`}
-          placeholderTextColor="#94a3b8"
+          placeholderTextColor={isDarkMode ? "#94a3b8" : "#94a3b8"}
           value={value}
           onChangeText={(text) => handleInputChange(key, text)}
         />
@@ -247,59 +396,78 @@ const ResourcesScreen = () => {
   if (loading) {
     return (
       <LinearGradient
-        colors={['#6b2488', '#151537', '#1a2c6b']}
-        locations={[0, 0.3, 1]}
+        colors={isDarkMode ? ["#1A1A1A", "#2A2A2A"] : ["#62B1DD", "#ffffff"]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
-        style={styles.centered}
+        locations={[0, 1]}
+        style={styles(isDarkMode).centered}
       >
-        <ActivityIndicator size="large" color="#ffffff" />
+        <ActivityIndicator size="large" color={isDarkMode ? "#FFFFFF" : "#ffffff"} />
       </LinearGradient>
     );
   }
+
   return (
     <LinearGradient
-      colors={["#6b2488", "#151537", "#1a2c6b"]}
-      locations={[0, 0.3, 1]}
+      colors={isDarkMode ? ["#000000", "#000"] : ["#0070F0", "#62B1DD"]}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
-      style={styles.gradientBackground}
+      style={styles(isDarkMode).gradientBackground}
     >
-      <SafeAreaView style={styles.safeArea}>
-        <Navbar />
-        <StatusBar barStyle="light-content" />
+      <SafeAreaView style={styles(isDarkMode).safeArea}>
+        {/* Custom content in SafeAreaView */}
+        <Text style={styles(isDarkMode).customHeader}>PrepNotes</Text>
+        <StatusBar barStyle={isDarkMode ? "light-content" : "dark-content"} />
         <KeyboardAvoidingView
           behavior={Platform.OS === "ios" ? "padding" : "height"}
-          style={styles.container}
+          style={styles(isDarkMode).container}
         >
           <ScrollView
-            style={styles.scrollView}
+            style={styles(isDarkMode).scrollView}
+            contentContainerStyle={styles(isDarkMode).scrollViewContent}
             refreshControl={
               <RefreshControl
                 refreshing={refreshing}
                 onRefresh={fetchResources}
-                colors={["#ffffff"]}
+                colors={isDarkMode ? ["#FFFFFF"] : ["#0070F0"]}
+                tintColor={isDarkMode ? "#FFFFFF" : "#ffffff"}
               />
             }
           >
-            <View style={styles.yearFilterContainer}>
+            {error && (
+              <View style={styles(isDarkMode).errorContainer}>
+                <Text style={styles(isDarkMode).errorText}>{error}</Text>
+              </View>
+            )}
+
+            <View style={styles(isDarkMode).yearFilterContainer}>
               {["1st Year", "2nd Year", "3rd Year"].map((year) => (
                 <TouchableOpacity
                   key={year}
                   style={[
-                    styles.yearFilterButton,
-                    selectedYear === year && styles.yearFilterButtonSelected,
+                    styles(isDarkMode).yearFilterButton,
+                    selectedYear === year && styles(isDarkMode).yearFilterButtonSelected,
                   ]}
                   onPress={() => setSelectedYear(year)}
                 >
-                  <Text style={styles.yearFilterButtonText}>{year}</Text>
+                  <Text
+                    style={[
+                      styles(isDarkMode).yearFilterButtonText,
+                      selectedYear === year && styles(isDarkMode).yearFilterButtonTextSelected,
+                    ]}
+                  >
+                    {year}
+                  </Text>
                 </TouchableOpacity>
               ))}
             </View>
 
-            <View style={styles.uploadSection}>
-              <Text style={styles.uploadTitle}>Upload New Document</Text>
-              <View style={styles.formContainer}>
+            <View style={styles(isDarkMode).uploadSection}>
+              <View style={styles(isDarkMode).uploadTitleContainer}>
+                <MaterialIcons name="cloud-upload" size={28} color={isDarkMode ? "#FFFFFF" : "#0070F0"} />
+                <Text style={styles(isDarkMode).uploadTitle}>Upload New Document</Text>
+              </View>
+              <View style={styles(isDarkMode).formContainer}>
                 {renderInput({
                   placeholder: "Document Title",
                   value: formData.title,
@@ -334,55 +502,56 @@ const ResourcesScreen = () => {
                 })}
 
                 <TouchableOpacity
-                  style={[
-                    styles.uploadButton,
-                    uploading && styles.uploadButtonDisabled,
-                  ]}
+                  style={[styles(isDarkMode).uploadButton, uploading && styles(isDarkMode).uploadButtonDisabled]}
                   onPress={handleFileUpload}
                   disabled={uploading}
                 >
-                  <View style={styles.uploadButtonContent}>
-                    {uploading && (
-                      <ActivityIndicator
-                        size="small"
-                        color="#ffffff"
-                        style={styles.uploadingSpinner}
-                      />
-                    )}
-                    <Text style={styles.uploadButtonText}>
-                      {uploading ? "Uploading..." : "Select & Upload Document"}
-                    </Text>
-                  </View>
+                  <LinearGradient
+                    colors={isDarkMode ? ["#000000", "#1A1A1A"] : ["#0070F0", "#62B1DD"]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                    style={styles(isDarkMode).uploadButtonGradient}
+                  >
+                    <View style={styles(isDarkMode).uploadButtonContent}>
+                      {uploading ? (
+                        <ActivityIndicator size="small" color={isDarkMode ? "#FFFFFF" : "#ffffff"} style={styles(isDarkMode).uploadingSpinner} />
+                      ) : (
+                        <MaterialIcons name="cloud-upload" size={24} color={isDarkMode ? "#FFFFFF" : "#ffffff"} style={styles(isDarkMode).uploadIcon} />
+                      )}
+                      <Text style={styles(isDarkMode).uploadButtonText}>
+                        {uploading ? "Uploading..." : "Select & Upload Document"}
+                      </Text>
+                    </View>
+                  </LinearGradient>
                 </TouchableOpacity>
               </View>
             </View>
 
             {Object.entries(resources).map(([section, folders]) => (
-              <View key={section} style={styles.section}>
-                <Text style={styles.sectionTitle}>
-                  {section.charAt(0).toUpperCase() + section.slice(1)}
-                </Text>
+              <View key={section} style={styles(isDarkMode).section}>
+                <View style={styles(isDarkMode).sectionHeaderContainer}>
+                  <MaterialIcons
+                    name={section === "notes" ? "description" : "help"}
+                    size={24}
+                    color={isDarkMode ? "#FFFFFF" : "#62B1DD"}
+                  />
+                  <Text style={styles(isDarkMode).sectionTitle}>
+                    {section.charAt(0).toUpperCase() + section.slice(1)}
+                  </Text>
+                </View>
                 {Object.keys(folders).length === 0 ? (
-                  <View style={styles.emptyContainer}>
-                    <MaterialIcons
-                      name="folder-open"
-                      size={48}
-                      color="#94a3b8"
-                    />
-                    <Text style={styles.emptyText}>No {section} available</Text>
+                  <View style={styles(isDarkMode).emptyContainer}>
+                    <MaterialIcons name="folder-open" size={48} color={isDarkMode ? "#94a3b8" : "#94a3b8"} />
+                    <Text style={styles(isDarkMode).emptyText}>No {section} available</Text>
                   </View>
                 ) : (
                   Object.entries(folders).map(([folderName, files]) => (
-                    <View key={folderName} style={styles.folderContainer}>
-                      <View style={styles.folderHeader}>
-                        <MaterialIcons
-                          name="folder"
-                          size={24}
-                          color="#ffffff"
-                        />
-                        <Text style={styles.folderTitle}>{folderName}</Text>
+                    <View key={folderName} style={styles(isDarkMode).folderContainer}>
+                      <View style={styles(isDarkMode).folderHeader}>
+                        <MaterialIcons name="folder" size={24} color={isDarkMode ? "#FFFFFF" : "#ffffff"} />
+                        <Text style={styles(isDarkMode).folderTitle}>{folderName}</Text>
                       </View>
-                      <View style={styles.filesGrid}>
+                      <View style={styles(isDarkMode).filesGrid}>
                         {files.map((file) => renderFileItem({ item: file }))}
                       </View>
                     </View>
@@ -397,12 +566,24 @@ const ResourcesScreen = () => {
   );
 };
 
-const styles = StyleSheet.create({
+const styles = (isDark) => StyleSheet.create({
+  centered: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   gradientBackground: {
     flex: 1,
   },
   safeArea: {
     flex: 1,
+  },
+  customHeader: {
+    fontSize: 28,
+    fontWeight: "bold",
+    color: isDark ? "#FFFFFF" : "#FFF",
+    textAlign: "center",
+    marginVertical: 10,
   },
   container: {
     flex: 1,
@@ -410,172 +591,302 @@ const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
   },
-  centered: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+  scrollViewContent: {
+    paddingBottom: 24,
+  },
+  errorContainer: {
+    margin: 16,
+    padding: 16,
+    backgroundColor: isDark ? '#FFE5E5' : '#FFE5E5',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: isDark ? '#FF8888' : '#FF8888',
+  },
+  errorText: {
+    color: isDark ? '#CC0000' : '#CC0000',
+    fontSize: 14,
+    textAlign: 'center',
   },
   yearFilterContainer: {
     flexDirection: "row",
-    justifyContent: "space-around",
+    justifyContent: "center",
+    gap: 12,
     marginVertical: 16,
+    paddingHorizontal: 16,
   },
   yearFilterButton: {
-    padding: 10,
-    borderRadius: 8,
-    backgroundColor: "#0F0F2E",
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    backgroundColor: isDark ? "rgba(255, 255, 255, 0.9)" : "rgba(255, 255, 255, 0.9)",
+    borderWidth: 1,
+    borderColor: isDark ? "#62B1DD" : "#62B1DD",
+    minWidth: 100,
+    alignItems: "center",
+    shadowColor: isDark ? "#000" : "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
   },
   yearFilterButtonSelected: {
-    backgroundColor: "#6b2488",
+    backgroundColor: isDark ? "#0070F0" : "#62B1DD",
+    borderColor: isDark ? "#0070F0" : "#62B1DD",
   },
   yearFilterButtonText: {
-    color: "#ffffff",
+    color: isDark ? "#62B1DD" : "#62B1DD",
     fontWeight: "600",
+    fontSize: 16,
+  },
+  yearFilterButtonTextSelected: {
+    color: isDark ? "#FFFFFF" : "#FFFFFF",
   },
   uploadSection: {
-    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    backgroundColor: isDark ? "#1A1A1A" : "#ffffff",
     margin: 16,
-    borderRadius: 16,
-    padding: 16,
+    borderRadius: 20,
+    padding: 20,
+    shadowColor: isDark ? "#000" : "#000",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 8,
   },
   uploadTitle: {
     fontSize: 24,
     fontWeight: "700",
-    color: "#ffffff",
-    marginBottom: 16,
+    color: isDark ? "#FFFFFF" : "#62B1DD",
+    marginBottom: 20,
   },
   formContainer: {
-    gap: 12,
+    gap: 16,
   },
   inputContainer: {
-    marginBottom: 12,
+    marginBottom: 0,
   },
   input: {
-    // backgroundColor: "rgba(255, 255, 255, 0.2)",
-    borderWidth: 1,
-    borderColor: "rgba(255, 255, 255, 0.3)",
+    backgroundColor: isDark ? "#2A2A2A" : "#f8f9fa",
+    borderWidth: 1.5,
+    borderColor: isDark ? "#3A3A3A" : "#e9ecef",
     borderRadius: 12,
     padding: 16,
     fontSize: 16,
-    color: "#ffffff",
+    color: isDark ? "#FFFFFF" : "#333333",
+    shadowColor: isDark ? "#000" : "#000",
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 2,
   },
   inputFilled: {
-    backgroundColor: "rgba(255, 255, 255, 0.3)",
-    borderColor: "#ffffff",
+    backgroundColor: isDark ? "#2A2A2A" : "#f8f9fa",
+    borderColor: isDark ? "#62B1DD" : "#62B1DD",
   },
-  uploadButton: {
-    backgroundColor: "#6b2488",
-    padding: 16,
+  uploadButtonGradient: {
     borderRadius: 12,
-    marginTop: 8,
-  },
-  uploadButtonDisabled: {
-    backgroundColor: "6b2488",
+    padding: 16,
   },
   uploadButtonContent: {
     flexDirection: "row",
     justifyContent: "center",
     alignItems: "center",
   },
-  uploadingSpinner: {
+  uploadIcon: {
     marginRight: 8,
   },
   uploadButtonText: {
-    color: "#fff",
+    color: isDark ? "#FFFFFF" : "#FFFFFF",
     fontSize: 16,
     fontWeight: "600",
   },
   section: {
-    padding: 16,
+    padding: 8,
+    backgroundColor: isDark ? "#1A1A1A" : "#ffffff",
+    margin: 16,
+    borderRadius: 20,
+    shadowColor: isDark ? "#000" : "#000",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  sectionHeaderContainer: {
+    flexDirection: "column",
+    alignItems: "center",
+    marginBottom: 20,
   },
   sectionTitle: {
     fontSize: 22,
     fontWeight: "700",
-    color: "#ffffff",
-    marginBottom: 16,
+    color: isDark ? "#FFFFFF" : "#62B1DD",
+    marginLeft: 8,
   },
   folderContainer: {
-    // backgroundColor: "#54337A",
     borderRadius: 16,
-    // padding: 16,
     marginBottom: 16,
+    borderColor: isDark ? "#3A3A3A" : "#e9ecef",
+    shadowColor: isDark ? "#000" : "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 4,
   },
   folderHeader: {
     flexDirection: "row",
     alignItems: "center",
     marginBottom: 16,
+    backgroundColor: isDark ? "#0070F0" : "#62B1DD",
+    padding: 12,
+    borderRadius: 12,
   },
   folderTitle: {
     fontSize: 18,
     fontWeight: "600",
-    color: "#ffffff",
+    color: isDark ? "#FFFFFF" : "#FFFFFF",
     marginLeft: 8,
   },
   filesGrid: {
-    gap: 12,
+    gap: 16,
   },
   fileItem: {
-    // backgroundColor: "#54337A",
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: "#54337A",
-    overflow: "hidden",
+    borderRadius: 16,
+    overflow: 'hidden',
+    marginBottom: 16,
+    elevation: 4,
+    shadowColor: isDark ? "#000" : "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
   },
+
   fileContent: {
-    padding: 16,
+    borderRadius: 16,
   },
+
+  fileHeaderGradient: {
+    overflow: 'hidden',
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+  },
+
   fileHeader: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 8,
+    padding: 16,
   },
-  fileIcon: {
-    marginRight: 8,
-  },
+
   fileName: {
     fontSize: 16,
-    fontWeight: "600",
-    color: "#ffffff",
+    fontWeight: "700",
+    color: isDark ? "#FFFFFF" : "#FFFFFF",
     flex: 1,
     marginRight: 8,
   },
+
+  fileIcon: {
+    marginRight: 8,
+  },
+
   fileTypeBadge: {
-    backgroundColor: "rgba(255, 255, 255, 0.2)",
-    paddingHorizontal: 8,
+    backgroundColor: isDark ? "rgba(255, 255, 255, 0.2)" : "rgba(255, 255, 255, 0.2)",
+    paddingHorizontal: 10,
     paddingVertical: 4,
-    borderRadius: 6,
+    borderRadius: 8,
   },
   fileType: {
     fontSize: 12,
-    color: "#ffffff",
+    color: isDark ? "#FFFFFF" : "#FFFFFF",
     fontWeight: "500",
   },
   fileDetails: {
     flexDirection: "row",
     flexWrap: "wrap",
     gap: 8,
-    marginTop: 8,
+    padding: 16,
+    backgroundColor: isDark ? "#000" : '#ffffff',
   },
+
   badge: {
-    backgroundColor: "rgba(255, 255, 255, 0.2)",
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
+    backgroundColor: isDark ? "#3A3A3A" : "#f0f9ff",
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: isDark ? "#62B1DD" : "#62B1DD",
   },
   badgeText: {
-    fontSize: 12,
-    color: "#ffffff",
+    fontSize: 13,
+    color: isDark ? "#FFFFFF" : "#0070F0",
+    fontWeight: "600",
+  },
+
+  fileActions: {
+    flexDirection: "row",
+    padding: 16,
+    gap: 12,
+    backgroundColor: isDark ? "#000" : '#ffffff',
+    borderBottomLeftRadius: 16,
+    borderBottomRightRadius: 16,
+  },
+
+  fileActionButton: {
+    flex: 1,
+    overflow: 'hidden',
+    borderRadius: 12,
+    elevation: 2,
+    shadowColor: isDark ? "#000" : "#000",
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+  },
+  actionButtonGradient: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 12,
+    gap: 8,
+  },
+
+  fileActionText: {
+    color: isDark ? "#FFFFFF" : "#FFFFFF",
+    fontSize: 15,
+    fontWeight: "600",
   },
   emptyContainer: {
-    backgroundColor: "rgba(255, 255, 255, 0.1)",
+    backgroundColor: isDark ? "#2A2A2A" : "#f8f9fa",
     borderRadius: 16,
-    padding: 24,
+    padding: 32,
     alignItems: "center",
+    borderWidth: 1,
+    borderColor: isDark ? "#3A3A3A" : "#e9ecef",
+    borderStyle: "dashed",
   },
   emptyText: {
     fontSize: 16,
-    color: "#ffffff",
+    color: isDark ? "#94a3b8" : "#94a3b8",
     fontStyle: "italic",
+    marginTop: 12,
   },
 });
 
