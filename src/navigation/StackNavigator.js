@@ -2,9 +2,8 @@ import React from "react";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import HomeScreen from "../screens/HomeScreen";
 import MainScreen from "../screens/MainScreen";
-import Bca from "../courses/main/Bca";
-import Bsc from "../courses/main/Bsc";
-import Btech from "../courses/main/Btech";
+import ResourceScreen from "../courses/main/ResourceScreen";
+import BTechScreen from "../courses/main/BTechScreen";
 import Settings from "../components/Settings";
 import Help from "../components/Help";
 import Profile from "../components/Profile";
@@ -16,6 +15,8 @@ import BottomTabNavigator from "./BottomTabNavigator";
 import AuthScreen from "../screens/AuthScreen";
 import { ThemeProvider } from "../context/ThemeContext";
 import QuizScreen from "../components/QuizScreen";
+import BCAScreen from "../courses/main/BCAScreen";
+import BSCScreen from "../courses/main/BSCScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -39,18 +40,8 @@ const StackNavigator = () => {
           options={{ headerShown: false }}
         />
         <Stack.Screen
-          name="BCA"
-          component={Bca}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="BSC"
-          component={Bsc}
-          options={{ headerShown: false }}
-        />
-        <Stack.Screen
-          name="BTECH"
-          component={Btech}
+          name="Resource"
+          component={ResourceScreen}
           options={{ headerShown: false }}
         />
         <Stack.Screen
@@ -94,6 +85,9 @@ const StackNavigator = () => {
           options={{ headerShown: false }}
         />
         <Stack.Screen name="Quiz" component={QuizScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="BCAScreen" component={BCAScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="BTechScreen" component={BTechScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="BSCScreen" component={BSCScreen} options={{ headerShown: false }} />
       </Stack.Navigator>
     </ThemeProvider>
   );

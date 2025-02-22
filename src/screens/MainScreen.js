@@ -1,3 +1,4 @@
+import React from "react";
 import {
   ScrollView,
   StyleSheet,
@@ -6,7 +7,6 @@ import {
   View,
   Dimensions,
 } from "react-native";
-import React from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import Ionicons from "react-native-vector-icons/Ionicons";
@@ -74,21 +74,25 @@ const MainScreen = ({ navigation }) => {
       title: "BCA",
       description: "Bachelor of Computer Applications",
       icon: "desktop-outline",
+      screen: "BCAScreen",
     },
     {
       title: "B.TECH",
       description: "Bachelor of Technology",
       icon: "construct-outline",
+      screen: "BTechScreen",
     },
     {
       title: "BSC",
       description: "Bachelor of Science",
       icon: "flask-outline",
+      screen: "BSCScreen",
     },
     {
       title: "MCA",
       description: "Master of Computer Applications",
       icon: "code-slash-outline",
+      screen: "ResourcesScreen",
     },
   ];
 
@@ -134,7 +138,7 @@ const MainScreen = ({ navigation }) => {
               title={course.title}
               description={course.description}
               icon={course.icon}
-              onPress={() => navigation.navigate(course.title)}
+              onPress={() => navigation.navigate(course.screen)}
               isDarkMode={isDarkMode}
             />
           ))}
