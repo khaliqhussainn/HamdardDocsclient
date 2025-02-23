@@ -139,6 +139,7 @@ const HomeScreen = () => {
       const statsString = await AsyncStorage.getItem(STORAGE_KEYS.STATS(uid));
       if (statsString) {
         const stats = JSON.parse(statsString);
+        console.log("Loaded stats:", stats);
         setStudyHours(parseFloat(stats.studyHours) || 0);
         setCompletedQuizzes(parseInt(stats.completedQuizzes) || 0);
         setStreak(parseInt(stats.streak) || 0);
@@ -152,7 +153,7 @@ const HomeScreen = () => {
   const saveStats = async () => {
     try {
       if (!user?.uid) return;
-      
+
       const stats = {
         studyHours,
         completedQuizzes,
@@ -160,8 +161,9 @@ const HomeScreen = () => {
         dailyGoal,
         lastUpdated: new Date().toISOString()
       };
-      
+
       await AsyncStorage.setItem(STORAGE_KEYS.STATS(user.uid), JSON.stringify(stats));
+      console.log("Saved stats:", stats);
     } catch (error) {
       console.error('Error saving stats:', error);
     }
@@ -171,14 +173,15 @@ const HomeScreen = () => {
     const now = new Date().getTime();
     setStudyStartTime(now);
     await AsyncStorage.setItem(STORAGE_KEYS.STUDY_START(uid), now.toString());
-    
+
     // Start the study timer
     const interval = setInterval(async () => {
       const currentTime = new Date().getTime();
       const elapsedHours = (currentTime - now) / 3600000; // Convert milliseconds to hours
-      
+
       setStudyHours(prevHours => {
         const newHours = prevHours + (1/60); // Add 1 minute worth of hours
+        console.log("Updated study hours:", newHours.toFixed(1));
         return parseFloat(newHours.toFixed(1));
       });
     }, 60000); // Update every minute
@@ -188,15 +191,16 @@ const HomeScreen = () => {
 
   const handleStudySessionEnd = async () => {
     if (!studyStartTime || !user?.uid) return;
-    
+
     const endTime = new Date().getTime();
     const elapsedHours = (endTime - studyStartTime) / 3600000;
-    
+
     setStudyHours(prevHours => {
       const newHours = prevHours + elapsedHours;
+      console.log("Final study hours:", newHours.toFixed(1));
       return parseFloat(newHours.toFixed(1));
     });
-    
+
     await saveStats();
     await AsyncStorage.removeItem(STORAGE_KEYS.STUDY_START(user.uid));
   };
@@ -210,22 +214,29 @@ const HomeScreen = () => {
       if (lastStudyDateStr) {
         const lastStudyDate = new Date(lastStudyDateStr);
         lastStudyDate.setHours(0, 0, 0, 0);
-        
+
         const diffDays = Math.floor((today - lastStudyDate) / (1000 * 60 * 60 * 24));
-        
+
         if (diffDays === 0) {
           // Already studied today, maintain streak
+          console.log("Maintaining streak");
           return;
         } else if (diffDays === 1) {
           // Studied yesterday, increment streak
-          setStreak(prevStreak => prevStreak + 1);
+          setStreak(prevStreak => {
+            const newStreak = prevStreak + 1;
+            console.log("Incremented streak:", newStreak);
+            return newStreak;
+          });
         } else {
           // Missed a day, reset streak
           setStreak(1);
+          console.log("Reset streak to 1");
         }
       } else {
         // First time studying
         setStreak(1);
+        console.log("First time studying, set streak to 1");
       }
 
       await AsyncStorage.setItem(STORAGE_KEYS.LAST_STUDY_DATE(uid), today.toISOString());
@@ -338,6 +349,7 @@ const HomeScreen = () => {
     </View>
   );
 };
+
 const styles = (isDark) => StyleSheet.create({
   container: {
     flex: 1,
@@ -503,7 +515,7 @@ const styles = (isDark) => StyleSheet.create({
   },
   aiHelperButton: {
     position: 'absolute',
-    bottom: 20,
+    bottom: 120,
     right: 20,
     width: 60,
     height: 60,

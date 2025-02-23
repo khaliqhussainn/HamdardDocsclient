@@ -189,7 +189,7 @@ const AIStudentHelper = () => {
               <TextInput
                 style={styles(isDarkMode).input}
                 placeholder="How can I help you?"
-                placeholderTextColor={isDarkMode ? "#888888" : "rgba(255,255,255,0.8)"}
+                placeholderTextColor={isDarkMode ? "#888888" : "#0070F0"}
                 value={msg}
                 onChangeText={setMsg}
                 multiline
@@ -303,8 +303,8 @@ const styles = (isDark) =>
     input: {
       flex: 1,
       maxHeight: 100,
-      backgroundColor: isDark ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.15)",
-      color: isDark ? "#FFFFFF" : "#fff",
+      backgroundColor: isDark ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.9)",
+      color: isDark ? "#FFFFFF" : "#0070F0",
       borderRadius: 24,
       paddingHorizontal: 20,
       paddingVertical: 12,

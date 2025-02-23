@@ -69,6 +69,7 @@ const GroupChat = () => {
           .sort((a, b) => a.timestamp - b.timestamp);
 
         const uniqueUsers = new Set(messageList.map((msg) => msg.userEmail));
+        console.log("Unique users:", Array.from(uniqueUsers)); // Debugging log
         setUsers(uniqueUsers);
         setMessages(messageList);
       }
@@ -211,7 +212,7 @@ const GroupChat = () => {
               style={styles(isDarkMode).closeButton}
               onPress={() => setShowUsersModal(false)}
             >
-              <Ionicons name="close" size={24} color={isDarkMode ? "#FFFFFF" : "#0070F0"} />
+              <Ionicons name="close" size={24} color={isDarkMode ? "#FFFFFF" : "#000"} />
             </TouchableOpacity>
           </View>
           <FlatList
@@ -495,7 +496,7 @@ const styles = (isDark) => StyleSheet.create({
     maxHeight: "80%",
   },
   modalTitle: {
-    color: isDark ? "#FFFFFF" : "#fff",
+    color: isDark ? "#FFFFFF" : "#000",
     fontSize: 18,
     fontWeight: "bold",
     marginBottom: 16,
@@ -508,12 +509,12 @@ const styles = (isDark) => StyleSheet.create({
     borderBottomColor: isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(255, 255, 255, 0.1)",
   },
   modalUserName: {
-    color: isDark ? "#FFFFFF" : "#fff",
+    color: isDark ? "#FFFFFF" : "#000",
     fontSize: 16,
     marginLeft: 12,
   },
   closeButton: {
-    backgroundColor: isDark ? "#6b2488" : "#6b2488",
+    backgroundColor: isDark ? "#0070F0" : "#0070F0",
     padding: 12,
     borderRadius: 8,
     alignItems: "center",
